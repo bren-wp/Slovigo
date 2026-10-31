@@ -72,7 +72,7 @@ private fun SlovigoApp(speak: (String) -> Unit) {
     }
     BackHandler(enabled = page != "home" && page != "welcome") { back() }
 
-    SkyBackground {
+    SkyBackground(highContrast = contrast) {
         BoxWithConstraints(
             Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)
         ) {
@@ -456,7 +456,7 @@ private fun BottomMenu(page: String, onClick: (String) -> Unit) {
         Row(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal=4.dp,vertical=4.dp)) {
             destinations.forEach { (target, label) ->
                 TextButton(
-                    onClick = onClick.let { { it(target) } },
+                    onClick = { onClick(target) },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.textButtonColors(contentColor = if (page == target) Teal else Navy)
                 ) {

@@ -59,15 +59,16 @@ fun SlovigoTheme(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun SkyBackground(content: @Composable BoxScope.() -> Unit) {
+fun SkyBackground(highContrast: Boolean = false, content: @Composable BoxScope.() -> Unit) {
     Box(
         Modifier.fillMaxSize().background(
             Brush.verticalGradient(
-                listOf(Color(0xFFBFEFFF), Color(0xFFEAFBFF), Ivory, Color(0xFFE7F8CA))
+                if (highContrast) listOf(Color.White, Color.White, Ivory) else
+                    listOf(Color(0xFFBFEFFF), Color(0xFFEAFBFF), Ivory, Color(0xFFE7F8CA))
             )
         )
     ) {
-        Canvas(Modifier.fillMaxSize().align(Alignment.BottomCenter)) {
+        if (!highContrast) Canvas(Modifier.fillMaxSize().align(Alignment.BottomCenter)) {
             val h = size.height
             val w = size.width
             val hill = Path().apply {
