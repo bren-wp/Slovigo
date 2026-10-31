@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hr.brendigo.slovigo.model.Alphabet
 import hr.brendigo.slovigo.model.Dot
-import hr.brendigo.slovigo.model.Stroke
+import hr.brendigo.slovigo.model.Stroke as LetterStroke
 import hr.brendigo.slovigo.model.StrokeTracker
 
 /**
@@ -39,7 +39,7 @@ fun TraceBoard(
     val strokes = remember(letter, uppercase) { Alphabet.strokes(letter, uppercase) }
     var strokeIndex by remember(letter, uppercase) { mutableIntStateOf(0) }
     var touchPoints by remember(letter, uppercase, strokeIndex) { mutableStateOf(emptyList<Dot>()) }
-    var acceptedPaths by remember(letter, uppercase) { mutableStateOf(emptyList<Stroke>()) }
+    var acceptedPaths by remember(letter, uppercase) { mutableStateOf(emptyList<LetterStroke>()) }
     val validator = remember(letter, uppercase, strokeIndex) {
         StrokeTracker(strokes[strokeIndex])
     }
@@ -133,7 +133,7 @@ fun TraceBoard(
     }
 }
 
-private fun strokeToPath(stroke: Stroke, width: Float, height: Float): Path = Path().apply {
+private fun strokeToPath(stroke: LetterStroke, width: Float, height: Float): Path = Path().apply {
     stroke.forEachIndexed { index, point ->
         if (index == 0) moveTo(point.x * width, point.y * height)
         else lineTo(point.x * width, point.y * height)
