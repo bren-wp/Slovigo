@@ -3,8 +3,7 @@
     <style name="Theme.Slovigo" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:statusBarColor">#0D9299</item>
-        <item name="android:navigationBarColor">#FFF9EF</item>
-        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:navigationBarColor">#243449</item>
         <item name="android:fontFamily">sans</item>
     </style>
 </resources>
