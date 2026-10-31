@@ -13,7 +13,7 @@ val hasReleaseKey = !keyFile.isNullOrBlank() && !storePasswordEnv.isNullOrBlank(
 
 android {
     namespace = "hr.brendigo.slovigo"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "hr.brendigo.slovigo"

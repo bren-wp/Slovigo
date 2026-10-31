@@ -92,7 +92,7 @@ private fun SlovigoApp(speak: (String) -> Unit) {
                     }
                 }
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
-                    Box(Modifier.fillMaxSize().widthIn(max = contentWidth)) {
+                    Box(Modifier.fillMaxHeight().widthIn(max = contentWidth).fillMaxWidth()) {
                         when (page) {
                             "welcome" -> WelcomeScreen(onStart = returnHome)
                             "home" -> HomeScreen(

@@ -7,11 +7,11 @@ Bez oglasa, prijave, analitike ili pristupa internetu. Minimalna verzija Android
 - Kotlin / Jetpack Compose / Material 3
 - Android Gradle Plugin 9.4.1, Gradle 9.6.0, JDK 17
 - Compose BOM 2026.09.00
-- compileSdk / targetSdk 36; minSdk 24
+- compileSdk 37 / targetSdk 36 / minSdk 24
 - Adaptivni raspored: mali mobiteli, veliki mobiteli, tableti, portret i pejzaž
 
 ## Izgradnja
-Otvoriti u Android Studiju s JDK 17 i instaliranim SDK 36, ili u terminalu s instaliranim Gradle 9.6:
+Otvoriti u Android Studiju s JDK 17 i instaliranim SDK 37, ili u terminalu s instaliranim Gradle 9.6:
 
 ```bash
 gradle :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleRelease :app:bundleRelease
