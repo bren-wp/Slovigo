@@ -94,7 +94,7 @@ private fun SlovigoApp(speak: (String) -> Unit) {
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                     Box(Modifier.fillMaxHeight().widthIn(max = contentWidth).fillMaxWidth()) {
                         when (page) {
-                            "welcome" -> WelcomeScreen(onStart = returnHome)
+                            "welcome" -> SplashScreen(onStart = returnHome)
                             "home" -> HomeScreen(
                                 upperCount + lowerCount,
                                 onUpper = { upper = true; page = "letters" },
@@ -159,23 +159,6 @@ private fun SlovigoApp(speak: (String) -> Unit) {
         },
         dismissButton = { TextButton(onClick = { showReset = false }) { Text("Odustani") } }
     )
-}
-
-@Composable
-private fun WelcomeScreen(onStart: () -> Unit) {
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-        Spacer(Modifier.height(20.dp))
-        AppLogo(fontSize = 48)
-        Text("Učimo pisati kroz igru", style = MaterialTheme.typography.titleLarge, color = Navy, textAlign = TextAlign.Center)
-        PencilMascot(Modifier.size(190.dp))
-        Text("Nauči slova, potez po potez", style = MaterialTheme.typography.titleLarge, color = Navy, textAlign = TextAlign.Center)
-        BigAction("▶  Započni", onStart, Modifier.fillMaxWidth().widthIn(max = 340.dp))
-        Spacer(Modifier.height(18.dp))
-    }
 }
 
 @Composable

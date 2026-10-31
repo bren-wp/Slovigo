@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">SLOVIGO</title>
+  <desc id="desc">Tirkizni zaobljeni znak s bijelim slovom A, tragom pisanja i olovkom.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#09BCC7"/><stop offset="1" stop-color="#087783"/>
+    </linearGradient>
+    <linearGradient id="yellow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE079"/><stop offset="1" stop-color="#F6B725"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+  <path d="M0 386C108 332 180 436 287 387S449 344 512 373V512H0Z" fill="#25C2CC" opacity=".55"/>
+  <path d="M210 83L80 433h82l31-93h130l32 93h81L302 83zm48 91 41 115h-82z" fill="#fff"/>
+  <path d="M211 387L257 231 317 388" stroke="#243449" stroke-width="15" stroke-linecap="round" stroke-dasharray="22 24" fill="none"/>
+  <circle cx="252" cy="145" r="23" fill="#FF7477"/>
+  <g transform="translate(336 18) rotate(42 74 142)">
+    <rect x="30" y="38" width="88" height="220" rx="20" fill="url(#yellow)" stroke="#243449" stroke-width="9"/>
+    <rect x="30" y="26" width="88" height="55" rx="19" fill="#FF7477" stroke="#243449" stroke-width="9"/>
+    <path d="M30 258h88l-44 76z" fill="#FAD2A7" stroke="#243449" stroke-width="9"/>
+    <path d="M56 306 74 334 92 306z" fill="#243449"/>
+  </g>
+  <path d="M96 124 78 108M106 88 95 61M146 79 150 48" stroke="#FFC857" stroke-width="14" stroke-linecap="round"/>
+</svg>
