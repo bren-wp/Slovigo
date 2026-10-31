@@ -36,7 +36,16 @@ Ovdje se prikazuju **prave snimke zaslona iz pokrenutog Android emulatora**, a n
   <img src="docs/screenshots/splash-small-phone.png" alt="Stvarna snimka zaslona na uskom Android prikazu" width="220" />
 </div>
 
-**Responzivni vodoravni prikaz (stvarna snimka emulatora):**
+**Početni izbornik — snimke stvarnog emulatora (kad postupak snimanja prođe):**
+
+<div align="center">
+  <img src="docs/screenshots/home-phone.png" alt="Stvarni početni izbornik SLOVIGO aplikacije na Pixel emulatoru" width="265" />
+  <img src="docs/screenshots/home-small-phone.png" alt="Stvarni početni izbornik na užem zaslonu" width="215" />
+</div>
+
+<img src="docs/screenshots/home-landscape.png" alt="Stvarni početni izbornik u vodoravnom položaju" width="750" />
+
+**Responzivni vodoravni Splash (stvarna snimka emulatora):**
 
 <div align="center">
   <img src="docs/screenshots/splash-landscape.png" alt="Stvarna snimka SLOVIGO Splasha u landscape rasporedu" width="680" />
@@ -44,7 +53,7 @@ Ovdje se prikazuju **prave snimke zaslona iz pokrenutog Android emulatora**, a n
 
 Snimku automatski izrađuje [GitHub Actions — Capture actual Android screenshots](https://github.com/bren-wp/Slovigo/actions/workflows/screenshots.yml). Ako slika nije još dostupna, snimanje emulatora nije završeno. Svaki novi zaslon dodavat će se u galeriju **tek nakon stvarnog snimanja iz aplikacije**.
 
-> **Status dizajna:** zaslon **01 — Splash** posebno je izrađen prema dostavljenoj vizualnoj referenci. Preciznost 1:1 nije izmjerena niti potvrđena automatiziranom usporedbom snimki. Ostali zasloni postoje kao funkcionalna početna verzija i redom će dobiti svoju vizualnu doradu.
+> **Status dizajna:** zasloni **01 — Splash** i **02 — Početni izbornik** imaju posebne responzivne Compose implementacije prema dostavljenim referencama. Poklapanje 1:1 nije izmjereno niti potvrđeno. Sljedeći zaslon za doradu je mreža velikih tiskanih slova (03).
 
 ## 🎨 Vizualni identitet
 
@@ -64,7 +73,7 @@ Ilustracije osnovnog zaslona implementirane su kao **Compose vektorski crteži**
 | # | Zaslon | Stanje |
 |--:|:--|:--|
 | 01 | Splash / Dobrodošlica | ✅ Zaseban responzivni dizajn |
-| 02 | Početni izbornik | Funkcionalan, vizualna dorada sljedeća |
+| 02 | Početni izbornik | ✅ Zaseban responzivni Compose dizajn; vizualna usporedba još nije potvrđena |
 | 03 | Velika tiskana slova | Funkcionalan, vizualna dorada slijedi |
 | 04 | Mala tiskana slova | Funkcionalan, vizualna dorada slijedi |
 | 05 | Vođeno pisanje | Funkcionalan, potrebna pedagoška provjera putanja |
