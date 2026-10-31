@@ -30,20 +30,54 @@ class MainActivity : ComponentActivity() {
     private var speaker: TextToSpeech? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        speaker = TextToSpeech(applicationContext) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                speaker?.language = Locale.forLanguageTag("hr-HR")
-            }
-        }
         val preview = if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-            intent.getStringExtra("preview_screen")?.takeIf { it == "home" || it == "welcome" } ?: "welcome"
+            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters") } ?: "welcome"
         } else "welcome"
         setContent { SlovigoTheme { SlovigoApp(initialPage = preview) { text ->
-            speaker?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "slovigo-letter")
+            speakSafely(text)
         } } }
     }
+    private var speechReady = false
+    private var pendingSpeech: String? = null
+
+    /** Never block initial UI launch on the optional OS speech engine. */
+    private fun speakSafely(text: String) {
+        if (text.isBlank()) return
+        if (speaker == null) {
+            pendingSpeech = text
+            try {
+                speaker = TextToSpeech(applicationContext) { status ->
+                    runOnUiThread {
+                        if (status == TextToSpeech.SUCCESS) {
+                            val language = runCatching {
+                                speaker?.setLanguage(Locale.forLanguageTag("hr-HR"))
+                            }.getOrNull()
+                            speechReady = language != null &&
+                                language != TextToSpeech.LANG_MISSING_DATA &&
+                                language != TextToSpeech.LANG_NOT_SUPPORTED
+                            if (speechReady) pendingSpeech?.let(::sayNow)
+                        }
+                        pendingSpeech = null
+                    }
+                }
+            } catch (_: RuntimeException) {
+                speaker = null
+                pendingSpeech = null
+            }
+        } else if (speechReady) sayNow(text) else pendingSpeech = text
+    }
+
+    private fun sayNow(text: String) {
+        runCatching { speaker?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "slovigo-letter") }
+    }
+
+    override fun onStop() {
+        runCatching { speaker?.stop() }
+        super.onStop()
+    }
+
     override fun onDestroy() {
-        speaker?.shutdown()
+        runCatching { speaker?.shutdown() }
         speaker = null
         super.onDestroy()
     }
@@ -82,7 +116,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
             val tablet = maxWidth >= 700.dp && maxHeight >= 480.dp
             val contentWidth = if (tablet) 1040.dp else 620.dp
             Column(Modifier.fillMaxSize()) {
-                if (page != "welcome" && page != "home") {
+                if (page != "welcome" && page != "home" && page != "letters") {
                     Row(
                         Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -105,7 +139,10 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 onProgress = { page = "progress" },
                                 onSettings = { page = "settings" }
                             )
-                            "letters" -> LetterPicker(upper, storage, revision, onSelect = choose)
+                            "letters" -> SlovigoAlphabetScreen(upper, storage.completedLetters(upper), choose, back,
+                                onSound = { if (sound) speak("Odaberi slovo za vježbanje") },
+                                onHome = returnHome, onGames = { page = "games" },
+                                onSettings = { page = "settings" })
                             "trace" -> TraceScreen(
                                 letter, upper, guide, tablet,
                                 onSpeak = { if (sound) speak(Alphabet.label(letter, upper)) },
@@ -140,7 +177,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                         }
                     }
                 }
-                if (page != "welcome" && page != "trace" && page != "success" && page != "home") {
+                if (page !in setOf("welcome", "trace", "success", "home", "letters")) {
                     BottomMenu(page) { page = it }
                 }
             }
@@ -162,47 +199,6 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
         },
         dismissButton = { TextButton(onClick = { showReset = false }) { Text("Odustani") } }
     )
-}
-
-@Composable
-private fun LetterPicker(uppercase: Boolean, storage: LocalProgress, revision: Int, onSelect: (String) -> Unit) {
-    Column(Modifier.fillMaxSize().padding(horizontal = 14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        ScreenTitle(
-            if (uppercase) "Velika tiskana slova" else "Mala tiskana slova",
-            "Odaberi slovo za vježbanje"
-        )
-        ProgressBadge(remember(revision, uppercase) { storage.total(uppercase) }, 30)
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 68.dp),
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(9.dp),
-            verticalArrangement = Arrangement.spacedBy(9.dp),
-            contentPadding = PaddingValues(bottom = 20.dp, top = 4.dp)
-        ) {
-            items(Alphabet.letters) { item ->
-                val isDone = remember(item, uppercase, revision) { storage.completed(item, uppercase) }
-                Surface(
-                    onClick = { onSelect(item) },
-                    modifier = Modifier.aspectRatio(1f),
-                    color = if (isDone) Color(0xFFC6F4BE) else Color(0xFFDFE8FF),
-                    shape = RoundedCornerShape(18.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Teal.copy(alpha=.25f)),
-                    shadowElevation = 2.dp
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            Alphabet.label(item, uppercase),
-                            fontSize = if (item.length > 1) 22.sp else 31.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Navy,
-                            textAlign = TextAlign.Center
-                        )
-                        if (isDone) Text("★", Modifier.align(Alignment.TopEnd).padding(2.dp), color = Color(0xFFDDA900))
-                    }
-                }
-            }
-        }
-    }
 }
 
 @Composable

@@ -40,8 +40,13 @@ fun TraceBoard(
     var strokeIndex by remember(letter, uppercase) { mutableIntStateOf(0) }
     var touchPoints by remember(letter, uppercase, strokeIndex) { mutableStateOf(emptyList<Dot>()) }
     var acceptedPaths by remember(letter, uppercase) { mutableStateOf(emptyList<LetterStroke>()) }
+    val selectedStroke = strokes.getOrNull(strokeIndex)
+    if (selectedStroke.isNullOrEmpty()) {
+        Text("Putanja nije dostupna. Vrati se na izbor slova.", color = Navy)
+        return
+    }
     val validator = remember(letter, uppercase, strokeIndex) {
-        StrokeTracker(strokes[strokeIndex])
+        StrokeTracker(selectedStroke)
     }
     var validGesture by remember(letter, uppercase, strokeIndex) { mutableStateOf(false) }
 

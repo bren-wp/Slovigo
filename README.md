@@ -27,33 +27,13 @@
 |:--:|:--:|:--:|
 | Svih 30 slova, uključujući Č, Ć, Đ, Š, Ž, DŽ, LJ i NJ | Smjerovi i početne točke poteza | Lokalno praćenje naučenih slova |
 
-## 📱 Kako aplikacija stvarno izgleda
+## 📱 Stvarni prikazi i kvaliteta
 
-Ovdje se prikazuju **prave snimke zaslona iz pokrenutog Android emulatora**, a ne ranije izrađene promotivne ilustracije.
+Splash (01), Početna (02) i Velika tiskana slova (03) imaju lokalne Compose implementacije za mobitele i tablete. **Podudarnost 1:1 još nije izmjerena.**
 
-<div align="center">
-  <img src="docs/screenshots/splash-phone.png" alt="Stvarna snimka SLOVIGO Splash zaslona iz Pixel emulatora" width="270" />
-  <img src="docs/screenshots/splash-small-phone.png" alt="Stvarna snimka zaslona na uskom Android prikazu" width="220" />
-</div>
+Prethodne PNG snimke emulatora bile su **nevaljane** jer su prikazivale Androidov ANR (`Process system isn't responding`) umjesto SLOVIGO aplikacije. Iz marketinške prezentacije uklonjene su njihove poveznice. Valjane snimke mogu se objaviti tek kada prođu stvarnu UI provjeru; stari PNG-ovi u repozitoriju nisu dokaz uspješnog prikaza.
 
-**Početni izbornik — snimke stvarnog emulatora (kad postupak snimanja prođe):**
-
-<div align="center">
-  <img src="docs/screenshots/home-phone.png" alt="Stvarni početni izbornik SLOVIGO aplikacije na Pixel emulatoru" width="265" />
-  <img src="docs/screenshots/home-small-phone.png" alt="Stvarni početni izbornik na užem zaslonu" width="215" />
-</div>
-
-<img src="docs/screenshots/home-landscape.png" alt="Stvarni početni izbornik u vodoravnom položaju" width="750" />
-
-**Responzivni vodoravni Splash (stvarna snimka emulatora):**
-
-<div align="center">
-  <img src="docs/screenshots/splash-landscape.png" alt="Stvarna snimka SLOVIGO Splasha u landscape rasporedu" width="680" />
-</div>
-
-Snimku automatski izrađuje [GitHub Actions — Capture actual Android screenshots](https://github.com/bren-wp/Slovigo/actions/workflows/screenshots.yml). Ako slika nije još dostupna, snimanje emulatora nije završeno. Svaki novi zaslon dodavat će se u galeriju **tek nakon stvarnog snimanja iz aplikacije**.
-
-> **Status dizajna:** zasloni **01 — Splash** i **02 — Početni izbornik** imaju posebne responzivne Compose implementacije prema dostavljenim referencama. Poklapanje 1:1 nije izmjereno niti potvrđeno. Sljedeći zaslon za doradu je mreža velikih tiskanih slova (03).
+[Pokreni opcionalnu provjeru emulatora](https://github.com/bren-wp/Slovigo/actions/workflows/screenshots.yml) · [Android CI](https://github.com/bren-wp/Slovigo/actions/workflows/android.yml)
 
 ## 🎨 Vizualni identitet
 
@@ -74,7 +54,7 @@ Ilustracije osnovnog zaslona implementirane su kao **Compose vektorski crteži**
 |--:|:--|:--|
 | 01 | Splash / Dobrodošlica | ✅ Zaseban responzivni dizajn |
 | 02 | Početni izbornik | ✅ Zaseban responzivni Compose dizajn; vizualna usporedba još nije potvrđena |
-| 03 | Velika tiskana slova | Funkcionalan, vizualna dorada slijedi |
+| 03 | Velika tiskana slova | ✅ Samostalna responzivna mreža s 30 slova; vizualnu usporedbu tek treba provesti |
 | 04 | Mala tiskana slova | Funkcionalan, vizualna dorada slijedi |
 | 05 | Vođeno pisanje | Funkcionalan, potrebna pedagoška provjera putanja |
 | 06 | Uspješno završena vježba | Funkcionalan, vizualna dorada slijedi |
@@ -116,3 +96,7 @@ SLOVIGO ne traži račun, ne prikazuje oglase, nema pristup internetu i ne koris
 [Izvorni kod](https://github.com/bren-wp/Slovigo) · [Automatizirani testovi](https://github.com/bren-wp/Slovigo/actions/workflows/android.yml) · [Politika privatnosti](PRIVACY.md) · [Licenca](LICENSE)
 
 Dizajnerske reference su smjernice, a **stvarne snimke aplikacije** izrađuju se automatizirano. Pritom se ne predstavljaju koncepti kao gotovi proizvodi.
+
+## Dijagnostika rušenja
+
+Ako se aplikacija ruši na fizičkom uređaju, provjeriti **Android Studio Logcat**, filtrirati po `hr.brendigo.slovigo.debug` i oznakama `FATAL EXCEPTION` / `AndroidRuntime`. Ukloniti osobne identifikatore prije slanja. Sama uspješna Gradle kompilacija nije dokaz ispravnosti na stvarnom uređaju.
