@@ -134,7 +134,7 @@ class StrokeTracker(private val reference: Stroke, private val tolerance: Float 
             val nearest = Dot(a.x + t * dx, a.y + t * dy)
             val candidate = (i + t) / segments.toFloat()
             if (nearest.distance(at) <= tolerance && candidate >= progress &&
-                candidate <= progress + 0.48f) {
+                candidate <= progress + 0.55f) {
                 best = maxOf(best, candidate)
             }
         }
