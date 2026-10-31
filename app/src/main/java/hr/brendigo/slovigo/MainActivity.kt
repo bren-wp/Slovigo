@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hr.brendigo.slovigo.data.LocalProgress
 import hr.brendigo.slovigo.model.Alphabet
+import hr.brendigo.slovigo.model.AchievementFlow
 import hr.brendigo.slovigo.ui.*
 import java.util.Locale
 
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val preview = if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters", "lowercase", "trace") } ?: "welcome"
+            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters", "lowercase", "trace", "success") } ?: "welcome"
         } else "welcome"
         setContent { SlovigoTheme { SlovigoApp(initialPage = preview) { text ->
             speakSafely(text)
@@ -116,7 +117,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
             val tablet = maxWidth >= 700.dp && maxHeight >= 480.dp
             val contentWidth = if (tablet) 1040.dp else 620.dp
             Column(Modifier.fillMaxSize()) {
-                if (page != "welcome" && page != "home" && page != "letters" && page != "trace") {
+                if (page !in setOf("welcome", "home", "letters", "trace", "success")) {
                     Row(
                         Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -177,15 +178,21 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                     page = "success"
                                 }
                             )
-                            "success" -> SuccessScreen(
-                                letter, upper,
+                            "success" -> SlovigoSuccessScreen(
+                                letter = letter,
+                                uppercase = upper,
+                                completedCount = if (upper) upperCount else lowerCount,
+                                onBack = back,
+                                onSettings = { page = "settings" },
                                 onRepeat = { page = "trace" },
                                 onNext = {
-                                    val index = Alphabet.letters.indexOf(letter)
-                                    if (index < Alphabet.letters.lastIndex) {
-                                        letter = Alphabet.letters[index + 1]
+                                    val next = AchievementFlow.nextLetter(letter)
+                                    if (next == null) {
+                                        page = "letters"
+                                    } else {
+                                        letter = next
                                         page = "trace"
-                                    } else page = "letters"
+                                    }
                                 }
                             )
                             "progress" -> ProgressScreen(upperCount, lowerCount) { page = "letters" }
@@ -224,32 +231,6 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
         },
         dismissButton = { TextButton(onClick = { showReset = false }) { Text("Odustani") } }
     )
-}
-
-@Composable
-private fun SuccessScreen(letter: String, uppercase: Boolean, onRepeat: () -> Unit, onNext: () -> Unit) {
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(22.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(22.dp)
-    ) {
-        Spacer(Modifier.height(8.dp))
-        Text("🌟", fontSize = 96.sp)
-        ScreenTitle("Bravo!", "Uspješno si napisao slovo!")
-        WhiteCard(Modifier.fillMaxWidth().widthIn(max = 420.dp)) {
-            Text(
-                Alphabet.label(letter,uppercase),
-                modifier=Modifier.fillMaxWidth(),
-                fontSize=120.sp,
-                color=Teal,
-                fontWeight=FontWeight.Black,
-                textAlign=TextAlign.Center
-            )
-            Text("⭐⭐⭐", modifier=Modifier.fillMaxWidth(),fontSize=35.sp,textAlign=TextAlign.Center)
-        }
-        BigAction("❯  Sljedeće slovo", onNext, Modifier.fillMaxWidth())
-        SmallAction("↻  Pokušaj ponovno", onRepeat, Modifier.fillMaxWidth())
-    }
 }
 
 @Composable
