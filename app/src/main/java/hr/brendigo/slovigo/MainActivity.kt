@@ -79,7 +79,7 @@ private fun SlovigoApp(speak: (String) -> Unit) {
             val tablet = maxWidth >= 700.dp && maxHeight >= 480.dp
             val contentWidth = if (tablet) 1040.dp else 620.dp
             Column(Modifier.fillMaxSize()) {
-                if (page != "welcome") {
+                if (page != "welcome" && page != "home") {
                     Row(
                         Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -95,12 +95,12 @@ private fun SlovigoApp(speak: (String) -> Unit) {
                     Box(Modifier.fillMaxHeight().widthIn(max = contentWidth).fillMaxWidth()) {
                         when (page) {
                             "welcome" -> SplashScreen(onStart = returnHome)
-                            "home" -> HomeScreen(
-                                upperCount + lowerCount,
+                            "home" -> SlovigoHomeScreen(
+                                learnedCount = upperCount + lowerCount,
                                 onUpper = { upper = true; page = "letters" },
                                 onLower = { upper = false; page = "letters" },
                                 onProgress = { page = "progress" },
-                                onGames = { page = "games" }
+                                onSettings = { page = "settings" }
                             )
                             "letters" -> LetterPicker(upper, storage, revision, onSelect = choose)
                             "trace" -> TraceScreen(
@@ -137,7 +137,7 @@ private fun SlovigoApp(speak: (String) -> Unit) {
                         }
                     }
                 }
-                if (page != "welcome" && page != "trace" && page != "success") {
+                if (page != "welcome" && page != "trace" && page != "success" && page != "home") {
                     BottomMenu(page) { page = it }
                 }
             }
@@ -159,50 +159,6 @@ private fun SlovigoApp(speak: (String) -> Unit) {
         },
         dismissButton = { TextButton(onClick = { showReset = false }) { Text("Odustani") } }
     )
-}
-
-@Composable
-private fun HomeScreen(
-    totalDone: Int,
-    onUpper: () -> Unit,
-    onLower: () -> Unit,
-    onProgress: () -> Unit,
-    onGames: () -> Unit
-) {
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 14.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                ScreenTitle("Što želiš vježbati?", "Učimo pisati kroz igru!")
-            }
-            PencilMascot(Modifier.size(80.dp))
-        }
-        WhiteCard(Modifier.fillMaxWidth()) {
-            Text("🔠  Velika tiskana slova", style = MaterialTheme.typography.headlineMedium, color = Navy)
-            Text("A B C Č Ć D ... Ž", color = Teal, fontWeight = FontWeight.Black, fontSize = 26.sp)
-            BigAction("Vježbaj velika slova  ❯", onUpper, Modifier.fillMaxWidth(), background = Yellow)
-        }
-        WhiteCard(Modifier.fillMaxWidth()) {
-            Text("🔤  Mala tiskana slova", style = MaterialTheme.typography.headlineMedium, color = Navy)
-            Text("a b c č ć d ... ž", color = Blue, fontWeight = FontWeight.Black, fontSize = 26.sp)
-            BigAction("Vježbaj mala slova  ❯", onLower, Modifier.fillMaxWidth(), background = Blue)
-        }
-        WhiteCard(Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("⭐", fontSize = 32.sp)
-                Spacer(Modifier.width(12.dp))
-                Column(Modifier.weight(1f)) {
-                    Text("Moj napredak", style = MaterialTheme.typography.titleLarge, color = Navy)
-                    Text("$totalDone / 60 vježbi", color = Navy.copy(alpha = .65f))
-                }
-            }
-            SmallAction("Pogledaj postignuća", onProgress, Modifier.fillMaxWidth())
-        }
-        BigAction("🎮  Igraj se slovima", onGames, Modifier.fillMaxWidth(), background = Coral)
-        Spacer(Modifier.height(10.dp))
-    }
 }
 
 @Composable

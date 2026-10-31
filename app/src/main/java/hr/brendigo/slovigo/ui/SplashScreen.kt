@@ -160,7 +160,7 @@ private fun SplashStartButton(onStart: () -> Unit, modifier: Modifier = Modifier
 }
 
 @Composable
-private fun SplashWordmark(fontSize: Int) {
+fun SplashWordmark(fontSize: Int) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -182,7 +182,7 @@ private fun SplashWordmark(fontSize: Int) {
 }
 
 @Composable
-private fun SplashBook(modifier: Modifier = Modifier) {
+fun SplashBook(modifier: Modifier = Modifier) {
     Box(modifier, contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             val w = size.width
@@ -279,7 +279,7 @@ private fun SplashLandscape(modifier: Modifier = Modifier) {
  * Intentionally keeps all decoration in Compose rather than drawing interface text into a bitmap.
  */
 @Composable
-private fun SplashPencil(modifier: Modifier = Modifier) {
+fun SplashPencil(modifier: Modifier = Modifier) {
     Canvas(modifier) {
         val w = size.width
         val h = size.height
