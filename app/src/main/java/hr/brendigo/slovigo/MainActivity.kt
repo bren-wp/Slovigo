@@ -30,20 +30,54 @@ class MainActivity : ComponentActivity() {
     private var speaker: TextToSpeech? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        speaker = TextToSpeech(applicationContext) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                speaker?.language = Locale.forLanguageTag("hr-HR")
-            }
-        }
         val preview = if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
             intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters") } ?: "welcome"
         } else "welcome"
         setContent { SlovigoTheme { SlovigoApp(initialPage = preview) { text ->
-            speaker?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "slovigo-letter")
+            speakSafely(text)
         } } }
     }
+    private var speechReady = false
+    private var pendingSpeech: String? = null
+
+    /** Never block initial UI launch on the optional OS speech engine. */
+    private fun speakSafely(text: String) {
+        if (text.isBlank()) return
+        if (speaker == null) {
+            pendingSpeech = text
+            try {
+                speaker = TextToSpeech(applicationContext) { status ->
+                    runOnUiThread {
+                        if (status == TextToSpeech.SUCCESS) {
+                            val language = runCatching {
+                                speaker?.setLanguage(Locale.forLanguageTag("hr-HR"))
+                            }.getOrNull()
+                            speechReady = language != null &&
+                                language != TextToSpeech.LANG_MISSING_DATA &&
+                                language != TextToSpeech.LANG_NOT_SUPPORTED
+                            if (speechReady) pendingSpeech?.let(::sayNow)
+                        }
+                        pendingSpeech = null
+                    }
+                }
+            } catch (_: RuntimeException) {
+                speaker = null
+                pendingSpeech = null
+            }
+        } else if (speechReady) sayNow(text) else pendingSpeech = text
+    }
+
+    private fun sayNow(text: String) {
+        runCatching { speaker?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "slovigo-letter") }
+    }
+
+    override fun onStop() {
+        runCatching { speaker?.stop() }
+        super.onStop()
+    }
+
     override fun onDestroy() {
-        speaker?.shutdown()
+        runCatching { speaker?.shutdown() }
         speaker = null
         super.onDestroy()
     }
