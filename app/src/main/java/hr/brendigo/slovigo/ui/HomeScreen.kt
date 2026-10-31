@@ -104,6 +104,7 @@ fun SlovigoHomeScreen(
 private fun HomeBrandHeader(modifier: Modifier, wide: Boolean) {
     BoxWithConstraints(modifier.height(if (wide) 210.dp else 156.dp)) {
         val pencilWidth = if (wide) maxWidth * .39f else maxWidth * .38f
+        val compactLogo = maxWidth < 360.dp
         Row(
             Modifier.align(Alignment.TopStart).padding(top = if (wide) 18.dp else 12.dp),
             verticalAlignment = Alignment.Top,
@@ -111,7 +112,7 @@ private fun HomeBrandHeader(modifier: Modifier, wide: Boolean) {
         ) {
             SplashBook(Modifier.size(if (wide) 84.dp else 62.dp))
             Column(Modifier.padding(top = if (wide) 16.dp else 9.dp)) {
-                SplashWordmark(if (wide) 39 else if (maxWidth < 360.dp) 26 else 30)
+                SplashWordmark(if (wide) 39 else if (compactLogo) 26 else 30)
                 Text(
                     "Uči pisati slova",
                     color = Navy,
