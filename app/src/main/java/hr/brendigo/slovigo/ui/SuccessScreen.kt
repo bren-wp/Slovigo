@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hr.brendigo.slovigo.model.Alphabet
+import hr.brendigo.slovigo.model.AchievementFlow
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -56,7 +57,7 @@ fun SlovigoSuccessScreen(
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 700.dp && maxWidth > maxHeight
         val compact = maxHeight < 725.dp || maxWidth < 360.dp
-        val progress = completedCount.coerceIn(0, Alphabet.letters.size)
+        val progress = AchievementFlow.safeCompletedCount(completedCount)
         val letterLabel = Alphabet.label(letter, uppercase)
         SuccessLandscape(Modifier.fillMaxSize())
 
@@ -256,7 +257,7 @@ private fun SuccessRibbon(modifier: Modifier) {
             fontSize = 47.sp,
             maxLines = 1,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 9.dp)
+            modifier = Modifier.offset(y = (-21).dp)
         )
     }
 }

@@ -29,7 +29,7 @@
 
 ## 📱 Stvarni prikazi i kvaliteta
 
-Splash (01), Početna (02), Velika tiskana slova (03), Mala tiskana slova (04) i Vježbanje pisanja (05) imaju zasebne responzivne Compose implementacije za mobitele i tablete. **Podudarnost 1:1 još nije izmjerena ni potvrđena usporedbom sa stvarnim prikazom.**
+Splash (01), Početna (02), Velika tiskana slova (03), Mala tiskana slova (04) Vježbanje pisanja (05) i Pohvala (06) imaju zasebne responzivne Compose implementacije za mobitele i tablete. **Podudarnost 1:1 još nije izmjerena ni potvrđena usporedbom sa stvarnim prikazom.**
 
 Prethodne PNG snimke emulatora bile su **nevaljane** jer su prikazivale Androidov ANR (`Process system isn't responding`) umjesto SLOVIGO aplikacije. Iz marketinške prezentacije uklonjene su njihove poveznice. Valjane snimke mogu se objaviti tek kada prođu stvarnu UI provjeru; stari PNG-ovi u repozitoriju nisu dokaz uspješnog prikaza.
 
@@ -57,7 +57,7 @@ Ilustracije osnovnog zaslona implementirane su kao **Compose vektorski crteži**
 | 03 | Velika tiskana slova | ✅ Samostalna responzivna mreža s 30 slova; vizualnu usporedbu tek treba provesti |
 | 04 | Mala tiskana slova | ✅ Poseban responzivni Compose zaslon, uključuje digrafe i odvojeni lokalni napredak; vizualna usporedba još nije završena |
 | 05 | Vođeno pisanje | ✅ Zaseban responzivni portretni/vodoravni zaslon, označeni potezi, funkcionalni gumbi; pedagoška i vizualna provjera slijedi |
-| 06 | Uspješno završena vježba | Funkcionalan, vizualna dorada slijedi |
+| 06 | Uspješno završena vježba | ✅ Samostalan responzivni Compose ekran „Bravo!”, vektorska zvijezda, vrpca, maskota, bodovi i navigacija; 1:1 usporedba još nije provedena |
 | 07 | Napredak | Funkcionalan, vizualna dorada slijedi |
 | 08 | Igre | Osnovna igra, za proširenje |
 | 09 | Postavke | Osnovne funkcije, vizualna dorada slijedi |
@@ -115,3 +115,14 @@ Zasebni `SlovigoLowercaseScreen` prikazuje 30 malih tiskanih slova abecede (`a, 
 - Podržana su velika i mala tiskana slova svih 30 slova hrvatske abecede, uključujući DŽ/LJ/NJ.
 
 Podudarnost 1:1 s referentnim ilustracijama **nije potvrđena** jer nema valjane usporedbe snimki zaslona. Svi detalji se renderiraju nativno u Composeu; nije riječ o prikazivanju slike umjesto funkcionalne aplikacije.
+
+### 🌟 Zaslon 06 — Bravo! Uspješno napisano slovo
+
+- Velika zlatna nasmiješena zvijezda, koraljna vrpca s natpisom „Bravo!”, šarena pozadina, maskota olovke i kartica s napisanim slovom.
+- Tri zlatne zvjezdice i traka stvarnog lokalnog napretka, odvojeno za velika/mala slova (0–30).
+- „Pokušaj ponovno” ponovno otvara vježbu **istog** slova. „Sljedeće slovo” otvara sljedeće slovo hrvatske abecede; nakon Ž vraća na izbor slova.
+- Portretni način s prilagodljivim dimenzijama i okomitim pomicanjem te dvostupčani landscape/tablet izgled.
+- Vlastite Compose vektorske ilustracije bez mrežnog pristupa. Stavke imaju razumljive pristupačne opise.
+- Testovi provjeravaju hrvatski abecedni slijed i gornju/donju granicu prikaza napretka.
+
+**1:1 status:** vizualni elementi slijede dostavljenu referentnu sliku, ali podudaranje piksel po piksel još nije potvrđeno stvarnom snimkom iz aplikacije.
