@@ -21,6 +21,27 @@ class AlphabetTest {
         }
     }
 
+    @Test fun lowercaseCroatianLabelsAreDistinctAndCorrect() {
+        assertEquals("dž", Alphabet.label("DŽ", false))
+        assertEquals("lj", Alphabet.label("LJ", false))
+        assertEquals("nj", Alphabet.label("NJ", false))
+        assertEquals("č", Alphabet.label("Č", false))
+        assertEquals("ć", Alphabet.label("Ć", false))
+        assertEquals("đ", Alphabet.label("Đ", false))
+        assertEquals("š", Alphabet.label("Š", false))
+        assertEquals("ž", Alphabet.label("Ž", false))
+        assertEquals(30, Alphabet.letters.map { Alphabet.label(it, false) }.toSet().size)
+    }
+
+    @Test fun lowerCaseDigraphsHaveIndependentTraceablePaths() {
+        for (digraph in listOf("DŽ", "LJ", "NJ")) {
+            val parts = Alphabet.strokes(digraph, false)
+            assertTrue("No strokes for $digraph", parts.isNotEmpty())
+            assertTrue("No left-side component in $digraph", parts.any { path -> path.any { it.x < 0.48f } })
+            assertTrue("No right-side component in $digraph", parts.any { path -> path.any { it.x > 0.52f } })
+        }
+    }
+
     @Test fun strokeMustStartAtCorrectPlaceAndFinish() {
         val stroke = listOf(Dot(0.1f, 0.1f), Dot(0.5f, 0.5f), Dot(0.9f, 0.9f))
         val tracker = StrokeTracker(stroke)

@@ -29,7 +29,7 @@
 
 ## 📱 Stvarni prikazi i kvaliteta
 
-Splash (01), Početna (02) i Velika tiskana slova (03) imaju lokalne Compose implementacije za mobitele i tablete. **Podudarnost 1:1 još nije izmjerena.**
+Splash (01), Početna (02), Velika tiskana slova (03) i Mala tiskana slova (04) imaju zasebne responzivne Compose implementacije za mobitele i tablete. **Podudarnost 1:1 još nije izmjerena ni potvrđena usporedbom sa stvarnim prikazom.**
 
 Prethodne PNG snimke emulatora bile su **nevaljane** jer su prikazivale Androidov ANR (`Process system isn't responding`) umjesto SLOVIGO aplikacije. Iz marketinške prezentacije uklonjene su njihove poveznice. Valjane snimke mogu se objaviti tek kada prođu stvarnu UI provjeru; stari PNG-ovi u repozitoriju nisu dokaz uspješnog prikaza.
 
@@ -55,7 +55,7 @@ Ilustracije osnovnog zaslona implementirane su kao **Compose vektorski crteži**
 | 01 | Splash / Dobrodošlica | ✅ Zaseban responzivni dizajn |
 | 02 | Početni izbornik | ✅ Zaseban responzivni Compose dizajn; vizualna usporedba još nije potvrđena |
 | 03 | Velika tiskana slova | ✅ Samostalna responzivna mreža s 30 slova; vizualnu usporedbu tek treba provesti |
-| 04 | Mala tiskana slova | Funkcionalan, vizualna dorada slijedi |
+| 04 | Mala tiskana slova | ✅ Poseban responzivni Compose zaslon, uključuje digrafe i odvojeni lokalni napredak; vizualna usporedba još nije završena |
 | 05 | Vođeno pisanje | Funkcionalan, potrebna pedagoška provjera putanja |
 | 06 | Uspješno završena vježba | Funkcionalan, vizualna dorada slijedi |
 | 07 | Napredak | Funkcionalan, vizualna dorada slijedi |
@@ -100,3 +100,7 @@ Dizajnerske reference su smjernice, a **stvarne snimke aplikacije** izrađuju se
 ## Dijagnostika rušenja
 
 Ako se aplikacija ruši na fizičkom uređaju, provjeriti **Android Studio Logcat**, filtrirati po `hr.brendigo.slovigo.debug` i oznakama `FATAL EXCEPTION` / `AndroidRuntime`. Ukloniti osobne identifikatore prije slanja. Sama uspješna Gradle kompilacija nije dokaz ispravnosti na stvarnom uređaju.
+
+### Zaslon 04 — mala tiskana slova
+
+Zasebni `SlovigoLowercaseScreen` prikazuje 30 malih tiskanih slova abecede (`a, b, c, č, ć, d, dž, đ, …, lj, nj, š, ž`). Uspješno naučena slova prikazana su zeleno sa zvjezdicom, dok je prvo nenaučeno vizualno istaknuto. Napredak za mala slova odvojen je od velikih. Kartice imaju dodirne radnje i opis za čitače zaslona, a mreža zadržava pet stupaca na tipičnom telefonu te se prilagođava uskim i širokim prikazima. Dodavanje screenshotova dopušteno je samo nakon uspješnog snimanja stvarne aplikacije.

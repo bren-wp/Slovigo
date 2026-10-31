@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val preview = if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters") } ?: "welcome"
+            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters", "lowercase") } ?: "welcome"
         } else "welcome"
         setContent { SlovigoTheme { SlovigoApp(initialPage = preview) { text ->
             speakSafely(text)
@@ -87,8 +87,8 @@ class MainActivity : ComponentActivity() {
 private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val storage = remember(context) { LocalProgress(context) }
-    var page by rememberSaveable { mutableStateOf(initialPage) }
-    var upper by rememberSaveable { mutableStateOf(true) }
+    var page by rememberSaveable { mutableStateOf(if (initialPage == "lowercase") "letters" else initialPage) }
+    var upper by rememberSaveable { mutableStateOf(initialPage != "lowercase") }
     var letter by rememberSaveable { mutableStateOf("A") }
     var revision by remember { mutableIntStateOf(0) }
     var sound by remember { mutableStateOf(storage.soundEnabled()) }
@@ -139,10 +139,28 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 onProgress = { page = "progress" },
                                 onSettings = { page = "settings" }
                             )
-                            "letters" -> SlovigoAlphabetScreen(upper, storage.completedLetters(upper), choose, back,
-                                onSound = { if (sound) speak("Odaberi slovo za vježbanje") },
-                                onHome = returnHome, onGames = { page = "games" },
-                                onSettings = { page = "settings" })
+                            "letters" -> if (upper) {
+                                SlovigoAlphabetScreen(
+                                    uppercase = true,
+                                    completed = storage.completedLetters(true),
+                                    onLetter = choose,
+                                    onBack = back,
+                                    onSound = { if (sound) speak("Odaberi veliko slovo za vježbanje") },
+                                    onHome = returnHome,
+                                    onGames = { page = "games" },
+                                    onSettings = { page = "settings" }
+                                )
+                            } else {
+                                SlovigoLowercaseScreen(
+                                    completed = storage.completedLetters(false),
+                                    onLetter = choose,
+                                    onBack = back,
+                                    onListen = { if (sound) speak("Odaberi malo tiskano slovo za vježbanje") },
+                                    onHome = returnHome,
+                                    onGames = { page = "games" },
+                                    onSettings = { page = "settings" }
+                                )
+                            }
                             "trace" -> TraceScreen(
                                 letter, upper, guide, tablet,
                                 onSpeak = { if (sound) speak(Alphabet.label(letter, upper)) },
