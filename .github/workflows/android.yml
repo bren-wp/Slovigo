@@ -31,7 +31,7 @@ jobs:
           echo "Android SDK: $ANDROID_HOME"
           SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)
           test -n "$SDKMANAGER" || { echo "Android sdkmanager is missing"; exit 1; }
-          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-37" "build-tools;36.0.0" "platform-tools"
+          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-37.0" "build-tools;36.0.0" "platform-tools"
       - name: Configure signing
         id: signing
         env:
