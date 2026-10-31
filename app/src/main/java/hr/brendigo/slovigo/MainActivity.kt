@@ -116,7 +116,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
             val tablet = maxWidth >= 700.dp && maxHeight >= 480.dp
             val contentWidth = if (tablet) 1040.dp else 620.dp
             Column(Modifier.fillMaxSize()) {
-                if (page != "welcome" && page != "home" && page != "letters") {
+                if (page != "welcome" && page != "home" && page != "letters" && page != "trace") {
                     Row(
                         Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -161,10 +161,17 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                     onSettings = { page = "settings" }
                                 )
                             }
-                            "trace" -> TraceScreen(
-                                letter, upper, guide, tablet,
-                                onSpeak = { if (sound) speak(Alphabet.label(letter, upper)) },
-                                onCompleted = {
+                            "trace" -> SlovigoWritingScreen(
+                                letter = letter,
+                                uppercase = upper,
+                                initialGuide = guide,
+                                onBack = { page = "letters" },
+                                onHome = returnHome,
+                                onUppercase = { upper = true; page = "letters" },
+                                onLowercase = { upper = false; page = "letters" },
+                                onSettings = { page = "settings" },
+                                onListen = { if (sound) speak(Alphabet.label(letter, upper)) },
+                                onFinished = {
                                     storage.markCompleted(letter, upper)
                                     revision++
                                     page = "success"
@@ -217,55 +224,6 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
         },
         dismissButton = { TextButton(onClick = { showReset = false }) { Text("Odustani") } }
     )
-}
-
-@Composable
-private fun TraceScreen(
-    letter: String,
-    uppercase: Boolean,
-    guide: Boolean,
-    tablet: Boolean,
-    onSpeak: () -> Unit,
-    onCompleted: () -> Unit
-) {
-    val heading = "Vježbaj slovo ${Alphabet.label(letter, uppercase)}"
-    if (tablet) {
-        Row(
-            Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            Column(
-                Modifier.weight(1.4f).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                ScreenTitle(heading, "Prati strelice od početka do kraja")
-                WhiteCard(Modifier.fillMaxWidth()) {
-                    TraceBoard(letter, uppercase, guide, onCompleted)
-                }
-            }
-            Column(
-                Modifier.weight(.8f).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                WhiteCard(Modifier.fillMaxWidth()) {
-                    Text("✏️  Slovo ${Alphabet.label(letter, uppercase)}", style=MaterialTheme.typography.headlineMedium)
-                    Text("Prstom povuci preko oznaka. Svaki potez počinje žutom točkom.")
-                    BigAction("🔊  Poslušaj", onSpeak, Modifier.fillMaxWidth())
-                }
-            }
-        }
-    } else {
-        Column(
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            ScreenTitle(heading, "Prati strelice od početka do kraja")
-            WhiteCard(Modifier.fillMaxWidth()) { TraceBoard(letter, uppercase, guide, onCompleted) }
-            BigAction("🔊  Poslušaj slovo", onSpeak, Modifier.fillMaxWidth())
-            Spacer(Modifier.height(12.dp))
-        }
-    }
 }
 
 @Composable
