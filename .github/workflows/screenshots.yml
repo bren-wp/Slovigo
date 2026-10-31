@@ -3,6 +3,7 @@ name: Capture actual Android screenshots
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -49,18 +50,37 @@ jobs:
             adb exec-out screencap -p > docs/screenshots/splash-phone.png
             file docs/screenshots/splash-phone.png
             test -s docs/screenshots/splash-phone.png
+            # Narrow phone viewport: test responsive layout at lower width/density.
+            adb shell wm size 720x1600
+            adb shell wm density 320
+            adb shell am force-stop hr.brendigo.slovigo.debug
+            adb shell am start -n hr.brendigo.slovigo.debug/hr.brendigo.slovigo.MainActivity
+            sleep 4
+            adb exec-out screencap -p > docs/screenshots/splash-small-phone.png
+            test -s docs/screenshots/splash-small-phone.png
+            # Wide viewport: test landscape two-column layout.
+            adb shell wm size reset
+            adb shell wm density reset
+            adb shell settings put system accelerometer_rotation 0
+            adb shell settings put system user_rotation 1
+            adb shell am force-stop hr.brendigo.slovigo.debug
+            adb shell am start -n hr.brendigo.slovigo.debug/hr.brendigo.slovigo.MainActivity
+            sleep 4
+            adb exec-out screencap -p > docs/screenshots/splash-landscape.png
+            test -s docs/screenshots/splash-landscape.png
+            adb shell settings put system user_rotation 0
       - name: Publish screenshot as a workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: real-android-splash-screenshot
-          path: docs/screenshots/splash-phone.png
+          path: docs/screenshots/splash-*.png
           if-no-files-found: error
       - name: Update README screenshot in repository
         if: github.ref == 'refs/heads/main'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/screenshots/splash-phone.png
+          git add docs/screenshots/splash-*.png
           if ! git diff --cached --quiet; then
             git commit -m "docs: update actual splash screenshot [skip ci]"
             git push origin HEAD:main

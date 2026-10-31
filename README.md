@@ -32,7 +32,14 @@
 Ovdje se prikazuju **prave snimke zaslona iz pokrenutog Android emulatora**, a ne ranije izrađene promotivne ilustracije.
 
 <div align="center">
-  <img src="docs/screenshots/splash-phone.png" alt="Stvarna snimka zaslona dobrodošlice SLOVIGO iz Android emulatora" width="270" />
+  <img src="docs/screenshots/splash-phone.png" alt="Stvarna snimka SLOVIGO Splash zaslona iz Pixel emulatora" width="270" />
+  <img src="docs/screenshots/splash-small-phone.png" alt="Stvarna snimka zaslona na uskom Android prikazu" width="220" />
+</div>
+
+**Responzivni vodoravni prikaz (stvarna snimka emulatora):**
+
+<div align="center">
+  <img src="docs/screenshots/splash-landscape.png" alt="Stvarna snimka SLOVIGO Splasha u landscape rasporedu" width="680" />
 </div>
 
 Snimku automatski izrađuje [GitHub Actions — Capture actual Android screenshots](https://github.com/bren-wp/Slovigo/actions/workflows/screenshots.yml). Ako slika nije još dostupna, snimanje emulatora nije završeno. Svaki novi zaslon dodavat će se u galeriju **tek nakon stvarnog snimanja iz aplikacije**.
