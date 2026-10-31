@@ -1,4 +1,4 @@
-name: Capture actual Android screenshots
+name: Capture validated Android UI screenshots
 
 on:
   push:
@@ -12,11 +12,11 @@ permissions:
   contents: write
 
 jobs:
-  splash-screenshot:
-    name: Capture splash in Pixel emulator
+  screenshots:
+    name: Real UI screenshots on Android emulator
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,90 +28,83 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.6.0'
-      - name: Prepare Android 17 for compilation
+      - name: Prepare Android SDK for build
         run: |
           SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -1)
           "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-37.0" "platform-tools" "build-tools;36.0.0"
-      - name: Build Android debug
+      - name: Assemble debug app
         run: gradle --no-daemon :app:assembleDebug
-      - name: Capture screenshot from a real Android emulator
+      - name: Launch application and verify real screens before capturing
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
-          target: google_apis
+          api-level: 30
           arch: x86_64
+          target: google_apis
           profile: pixel_6
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -memory 4096 -cores 2
           script: |
-            set -e
+            set -euo pipefail
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell settings put system font_scale 1.0
-            adb shell am start -n hr.brendigo.slovigo.debug/hr.brendigo.slovigo.MainActivity
-            sleep 8
             mkdir -p docs/screenshots
-            adb exec-out screencap -p > docs/screenshots/splash-phone.png
-            file docs/screenshots/splash-phone.png
-            test -s docs/screenshots/splash-phone.png
-            # Narrow phone viewport: test responsive layout at lower width/density.
-            adb shell wm size 720x1600
-            adb shell wm density 320
-            adb shell am force-stop hr.brendigo.slovigo.debug
-            adb shell am start -n hr.brendigo.slovigo.debug/hr.brendigo.slovigo.MainActivity
-            sleep 4
-            adb exec-out screencap -p > docs/screenshots/splash-small-phone.png
-            test -s docs/screenshots/splash-small-phone.png
-            # Wide viewport: test landscape two-column layout.
-            adb shell wm size reset
-            adb shell wm density reset
-            adb shell settings put system accelerometer_rotation 0
-            adb shell settings put system user_rotation 1
-            adb shell am force-stop hr.brendigo.slovigo.debug
-            adb shell am start -n hr.brendigo.slovigo.debug/hr.brendigo.slovigo.MainActivity
-            sleep 4
-            adb exec-out screencap -p > docs/screenshots/splash-landscape.png
-            test -s docs/screenshots/splash-landscape.png
-            adb shell settings put system user_rotation 0
-            adb shell wm size reset
-            adb shell wm density reset
-            # Launch the real home screen using a DEBUG-ONLY preview intent.
-            adb shell am force-stop hr.brendigo.slovigo.debug
-            adb shell am start -n hr.brendigo.slovigo.debug/hr.brendigo.slovigo.MainActivity --es preview_screen home
-            sleep 4
-            adb exec-out screencap -p > docs/screenshots/home-phone.png
-            test -s docs/screenshots/home-phone.png
-            # Compact phone capture to detect clipped content.
-            adb shell wm size 720x1600
-            adb shell wm density 320
-            adb shell am force-stop hr.brendigo.slovigo.debug
-            adb shell am start -n hr.brendigo.slovigo.debug/hr.brendigo.slovigo.MainActivity --es preview_screen home
-            sleep 4
-            adb exec-out screencap -p > docs/screenshots/home-small-phone.png
-            test -s docs/screenshots/home-small-phone.png
-            # Landscape home capture.
-            adb shell wm size reset
-            adb shell wm density reset
-            adb shell settings put system user_rotation 1
-            adb shell am force-stop hr.brendigo.slovigo.debug
-            adb shell am start -n hr.brendigo.slovigo.debug/hr.brendigo.slovigo.MainActivity --es preview_screen home
-            sleep 4
-            adb exec-out screencap -p > docs/screenshots/home-landscape.png
-            test -s docs/screenshots/home-landscape.png
-            adb shell settings put system user_rotation 0
-
-      - name: Publish screenshot as a workflow artifact
+            capture() {
+              local label="$1"
+              local preview="$2"
+              local dims="$3"
+              local density="$4"
+              local expected="$5"
+              adb shell wm size "$dims"
+              adb shell wm density "$density"
+              adb shell am force-stop hr.brendigo.slovigo.debug || true
+              adb shell am start -n hr.brendigo.slovigo.debug/hr.brendigo.slovigo.MainActivity --es preview_screen "$preview"
+              local seen=0
+              for i in $(seq 1 20); do
+                adb shell uiautomator dump /sdcard/window.xml >/dev/null 2>&1 || true
+                if adb shell cat /sdcard/window.xml 2>/dev/null | grep -Fq "$expected"; then
+                  seen=1
+                  break
+                fi
+                sleep 3
+              done
+              if [ "$seen" -ne 1 ]; then
+                echo "UI did not become ready: $label ($expected)"
+                adb logcat -d -t 1000 | grep -E 'FATAL EXCEPTION|ANR in|AndroidRuntime|Process: hr.brendigo.slovigo' | tail -70 || true
+                exit 1
+              fi
+              adb exec-out screencap -p > "docs/screenshots/$label.png"
+              test -s "docs/screenshots/$label.png"
+              file "docs/screenshots/$label.png"
+            }
+            capture "splash-phone" "welcome" "1080x2400" 420 "Započni"
+            capture "splash-small-phone" "welcome" "720x1600" 320 "Započni"
+            capture "splash-landscape" "welcome" "1600x900" 320 "Započni"
+            capture "home-phone" "home" "1080x2400" 420 "Velika"
+            capture "home-small-phone" "home" "720x1600" 320 "Velika"
+            capture "home-landscape" "home" "1600x900" 320 "Velika"
+            adb shell wm size reset || true
+            adb shell wm density reset || true
+      - name: Upload actual screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: real-android-splash-screenshot
+          name: slovigo-real-emulator-screenshots
           path: docs/screenshots/*.png
           if-no-files-found: error
-      - name: Update README screenshot in repository
-        if: github.ref == 'refs/heads/main'
+      - name: Commit validated screenshots to README gallery
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          base_commit=$(git rev-parse HEAD)
+          remote_commit=$(git ls-remote origin refs/heads/main | cut -f1)
+          if [ "$base_commit" != "$remote_commit" ]; then
+            echo "Skipping outdated screenshot upload: main has changed."
+            exit 0
+          fi
           git add docs/screenshots/*.png
           if ! git diff --cached --quiet; then
-            git commit -m "docs: update actual splash screenshot [skip ci]"
+            git commit -m "docs: verified Android home and splash screenshots [skip ci]"
             git push origin HEAD:main
           fi
