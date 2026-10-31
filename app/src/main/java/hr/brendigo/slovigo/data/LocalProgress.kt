@@ -15,6 +15,7 @@ class LocalProgress(context: Context) {
     }
 
     fun total(uppercase: Boolean): Int = Alphabet.letters.count { completed(it, uppercase) }
+    fun completedLetters(uppercase: Boolean): Set<String> = Alphabet.letters.filterTo(mutableSetOf()) { completed(it, uppercase) }
     fun soundEnabled(): Boolean = prefs.getBoolean("sound", true)
     fun setSoundEnabled(value: Boolean) = prefs.edit().putBoolean("sound", value).apply()
     fun guideEnabled(): Boolean = prefs.getBoolean("guide", true)
