@@ -236,10 +236,12 @@ fun TraceBoard(
                 }
             }
             if (showGuide || showHelp) {
+                val boardWidth = maxWidth
+                val boardHeight = maxHeight
                 strokes.forEachIndexed { index, stroke ->
                     val first = stroke.firstOrNull()
                     if (first != null) {
-                        val dim = if (maxWidth < 300.dp) 25.dp else 29.dp
+                        val dim = if (boardWidth < 300.dp) 25.dp else 29.dp
                         val color = when (index % 3) {
                             0 -> Teal
                             1 -> Coral
@@ -247,8 +249,8 @@ fun TraceBoard(
                         }
                         Box(
                             Modifier.offset(
-                                x = (maxWidth - dim) * first.x.coerceIn(0f, 1f),
-                                y = (maxHeight - dim) * first.y.coerceIn(0f, 1f)
+                                x = (boardWidth - dim) * first.x.coerceIn(0f, 1f),
+                                y = (boardHeight - dim) * first.y.coerceIn(0f, 1f)
                             )
                                 .size(dim).clip(CircleShape)
                                 .background(if (index < acceptedPaths.size) Green else color),

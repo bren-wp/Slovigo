@@ -74,6 +74,7 @@ fun SlovigoWritingScreen(
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 790.dp && maxWidth > maxHeight
         val compact = maxHeight < 670.dp || maxWidth < 350.dp
+        val narrowLandscape = maxWidth < 930.dp
         TraceScene()
 
         if (wide) {
@@ -82,7 +83,7 @@ fun SlovigoWritingScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 TraceNavigationRail(
-                    Modifier.width(if (maxWidth < 930.dp) 170.dp else 225.dp).fillMaxHeight(),
+                    Modifier.width(if (narrowLandscape) 170.dp else 225.dp).fillMaxHeight(),
                     onHome, onUppercase, onLowercase, onSettings, uppercase
                 )
                 Column(
@@ -106,7 +107,7 @@ fun SlovigoWritingScreen(
                     StrokeProgress(doneStrokes, strokesTotal, letterPosition)
                 }
                 Column(
-                    Modifier.width(if (maxWidth < 930.dp) 178.dp else 235.dp)
+                    Modifier.width(if (narrowLandscape) 178.dp else 235.dp)
                         .fillMaxHeight()
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
