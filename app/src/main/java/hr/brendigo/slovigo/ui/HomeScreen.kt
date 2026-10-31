@@ -220,7 +220,8 @@ private fun LetterChoiceCard(
 
 @Composable
 private fun HomeSchoolSupplies(uppercase:Boolean, modifier:Modifier) {
-    Canvas(modifier) {
+    Box(modifier) {
+        Canvas(Modifier.fillMaxSize()) {
         val w=size.width
         val h=size.height
         val navy=Navy
@@ -259,7 +260,7 @@ private fun HomeSchoolSupplies(uppercase:Boolean, modifier:Modifier) {
             drawLine(Color(0xFF168CB4),Offset(w*.23f,h*.81f),Offset(w*.30f,h*.45f),w*.042f,cap=StrokeCap.Round)
         }
     }
-    Box(modifier,contentAlignment=if(uppercase) Alignment.Center else Alignment.Center) {
+        Box(Modifier.fillMaxSize(),contentAlignment=Alignment.Center) {
         Text(
             if (uppercase) "ABC" else "abc",
             modifier=Modifier.offset(
@@ -271,6 +272,7 @@ private fun HomeSchoolSupplies(uppercase:Boolean, modifier:Modifier) {
             color=Navy,
             textAlign=TextAlign.Center
         )
+    }
     }
 }
 

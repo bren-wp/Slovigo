@@ -35,7 +35,10 @@ class MainActivity : ComponentActivity() {
                 speaker?.language = Locale.forLanguageTag("hr-HR")
             }
         }
-        setContent { SlovigoTheme { SlovigoApp { text ->
+        val preview = if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
+            intent.getStringExtra("preview_screen")?.takeIf { it == "home" || it == "welcome" } ?: "welcome"
+        } else "welcome"
+        setContent { SlovigoTheme { SlovigoApp(initialPage = preview) { text ->
             speaker?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "slovigo-letter")
         } } }
     }
@@ -47,10 +50,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun SlovigoApp(speak: (String) -> Unit) {
+private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val storage = remember(context) { LocalProgress(context) }
-    var page by rememberSaveable { mutableStateOf("welcome") }
+    var page by rememberSaveable { mutableStateOf(initialPage) }
     var upper by rememberSaveable { mutableStateOf(true) }
     var letter by rememberSaveable { mutableStateOf("A") }
     var revision by remember { mutableIntStateOf(0) }
