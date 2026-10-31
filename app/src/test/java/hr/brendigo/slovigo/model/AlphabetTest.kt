@@ -42,6 +42,29 @@ class AlphabetTest {
         }
     }
 
+    @Test fun reversedStrokeCannotFinishLetter() {
+        val segment = listOf(Dot(0.1f, 0.9f), Dot(0.5f, 0.1f))
+        val tracker = StrokeTracker(segment)
+        assertFalse(tracker.start(Dot(0.5f, 0.1f)))
+        tracker.move(Dot(0.1f, 0.9f))
+        assertFalse(tracker.end())
+    }
+
+    @Test fun incompleteStrokeCannotFinishLetter() {
+        val segment = listOf(Dot(0.1f, 0.9f), Dot(0.5f, 0.1f))
+        val tracker = StrokeTracker(segment)
+        assertTrue(tracker.start(Dot(0.1f, 0.9f)))
+        tracker.move(Dot(0.2f, 0.7f))
+        assertFalse(tracker.end())
+    }
+
+    @Test fun everyCroatianDigraphHasMoreThanOneStroke() {
+        for (letter in listOf("DŽ", "LJ", "NJ")) {
+            assertTrue(Alphabet.strokes(letter, true).size > 1)
+            assertTrue(Alphabet.strokes(letter, false).size > 1)
+        }
+    }
+
     @Test fun strokeMustStartAtCorrectPlaceAndFinish() {
         val stroke = listOf(Dot(0.1f, 0.1f), Dot(0.5f, 0.5f), Dot(0.9f, 0.9f))
         val tracker = StrokeTracker(stroke)

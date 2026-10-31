@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val preview = if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters", "lowercase") } ?: "welcome"
+            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters", "lowercase", "trace") } ?: "welcome"
         } else "welcome"
         setContent { SlovigoTheme { SlovigoApp(initialPage = preview) { text ->
             speakSafely(text)
