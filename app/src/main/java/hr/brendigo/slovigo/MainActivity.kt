@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val preview = if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters", "lowercase", "trace", "success", "progress") } ?: "welcome"
+            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters", "lowercase", "trace", "success", "progress", "games") } ?: "welcome"
         } else "welcome"
         setContent { SlovigoTheme { SlovigoApp(initialPage = preview) { text ->
             speakSafely(text)
@@ -123,7 +123,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
             val tablet = maxWidth >= 700.dp && maxHeight >= 480.dp
             val contentWidth = if (tablet) 1040.dp else 620.dp
             Column(Modifier.fillMaxSize()) {
-                if (page !in setOf("welcome", "home", "letters", "trace", "success", "progress")) {
+                if (page !in setOf("welcome", "home", "letters", "trace", "success", "progress", "games")) {
                     Row(
                         Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -144,6 +144,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 onUpper = { upper = true; page = "letters" },
                                 onLower = { upper = false; page = "letters" },
                                 onProgress = { page = "progress" },
+                                onGames = { page = "games" },
                                 onSettings = { page = "settings" }
                             )
                             "letters" -> if (upper) {
@@ -219,7 +220,22 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 onLetters = { page = "letters" },
                                 onSettings = { page = "settings" }
                             )
-                            "games" -> GameScreen { choose(it) }
+                            "games" -> SlovigoGamesScreen(
+                                points = remember(revision) { storage.gamePoints() },
+                                onAward = { mode, gameLetter ->
+                                    val earned = storage.awardGameOnce(mode, gameLetter)
+                                    if (earned) revision++
+                                    earned
+                                },
+                                onPractice = { gameLetter ->
+                                    upper = true
+                                    choose(gameLetter)
+                                },
+                                onSpeak = { spoken -> if (sound) speak(spoken) },
+                                onHome = returnHome,
+                                onProgress = { page = "progress" },
+                                onSettings = { page = "settings" }
+                            )
                             "settings" -> SettingsScreen(
                                 sound, guide, contrast,
                                 onSound = { sound = it; storage.setSoundEnabled(it) },
@@ -232,7 +248,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                         }
                     }
                 }
-                if (page !in setOf("welcome", "trace", "success", "home", "letters", "progress")) {
+                if (page !in setOf("welcome", "trace", "success", "home", "letters", "progress", "games")) {
                     BottomMenu(page) { page = it }
                 }
             }
@@ -254,35 +270,6 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
         },
         dismissButton = { TextButton(onClick = { showReset = false }) { Text("Odustani") } }
     )
-}
-
-@Composable
-private fun GameScreen(onChoose: (String) -> Unit) {
-    var current by rememberSaveable { mutableIntStateOf(0) }
-    var celebrate by remember { mutableStateOf(false) }
-    val target = Alphabet.letters[current % Alphabet.letters.size]
-    val other = Alphabet.letters[(current + 5) % Alphabet.letters.size]
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
-    ) {
-        ScreenTitle("Igraj se slovima", "Pronađi slovo koje piše na kartici")
-        WhiteCard(Modifier.fillMaxWidth()) {
-            Text("Pronađi slovo:", style = MaterialTheme.typography.titleLarge)
-            Text(target, Modifier.fillMaxWidth(), color = Teal, fontWeight = FontWeight.Black, fontSize = 85.sp, textAlign = TextAlign.Center)
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                BigAction(target, { celebrate = true }, Modifier.weight(1f), background = Yellow)
-                BigAction(other, { celebrate = false }, Modifier.weight(1f), background = Blue)
-            }
-            if (celebrate) {
-                Text("Bravo! ⭐ Točno slovo.", color = Teal, fontWeight = FontWeight.Bold)
-                BigAction("Sljedeći izazov", { current++; celebrate = false }, Modifier.fillMaxWidth())
-                SmallAction("Vježbaj pisanje", { onChoose(target) }, Modifier.fillMaxWidth())
-            } else {
-                Text("Dodirni odgovarajuće slovo.", color = Navy.copy(alpha = .7f))
-            }
-        }
-    }
 }
 
 @Composable

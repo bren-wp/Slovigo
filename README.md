@@ -29,7 +29,7 @@
 
 ## 📱 Stvarni prikazi i kvaliteta
 
-Splash (01), Početna (02), Velika tiskana slova (03), Mala tiskana slova (04), Vježbanje pisanja (05), Pohvala (06) i Moj napredak (07) imaju zasebne responzivne Compose implementacije za mobitele i tablete. **Podudarnost 1:1 još nije izmjerena ni potvrđena usporedbom sa stvarnim prikazom.**
+Splash (01), Početna (02), Velika tiskana slova (03), Mala tiskana slova (04), Vježbanje pisanja (05), Pohvala (06) i Moj napredak (07) i Igre (08) imaju zasebne responzivne Compose implementacije za mobitele i tablete. **Podudarnost 1:1 još nije izmjerena ni potvrđena usporedbom sa stvarnim prikazom.**
 
 Prethodne PNG snimke emulatora bile su **nevaljane** jer su prikazivale Androidov ANR (`Process system isn't responding`) umjesto SLOVIGO aplikacije. Iz marketinške prezentacije uklonjene su njihove poveznice. Valjane snimke mogu se objaviti tek kada prođu stvarnu UI provjeru; stari PNG-ovi u repozitoriju nisu dokaz uspješnog prikaza.
 
@@ -59,7 +59,7 @@ Ilustracije osnovnog zaslona implementirane su kao **Compose vektorski crteži**
 | 05 | Vođeno pisanje | ✅ Zaseban responzivni portretni/vodoravni zaslon, označeni potezi, funkcionalni gumbi; pedagoška i vizualna provjera slijedi |
 | 06 | Uspješno završena vježba | ✅ Samostalan responzivni Compose ekran „Bravo!”, vektorska zvijezda, vrpca, maskota, bodovi i navigacija; 1:1 usporedba još nije provedena |
 | 07 | Napredak | ✅ Responzivni pregled, 60 mjesta za slova, stvarni dnevni zapis, značke, navigacija; 1:1 vizualna potvrda još nije provedena |
-| 08 | Igre | Osnovna igra, za proširenje |
+| 08 | Igre | ✅ Responzivan zaslon s dvije stvarne igre prepoznavanja slova, bodovima i pristupom vježbanju pisanja; vizualno 1:1 nije potvrđeno |
 | 09 | Postavke | Osnovne funkcije, vizualna dorada slijedi |
 
 ## 🛠️ Tehnologija i uređaji
@@ -138,3 +138,15 @@ Podudarnost 1:1 s referentnim ilustracijama **nije potvrđena** jer nema valjane
 - Podaci ostaju u lokalnom Android SharedPreferences spremištu i brišu se u postavkama. Nema vanjske analitike.
 
 Vizualno su implementirane komponente iz dostavljene reference (brendirano zaglavlje, maskota, kartice, kružni graf, stupčasti graf, medalje i donja navigacija). **Pixel-perfect 1:1 nije objektivno potvrđen** — za to su potrebne stvarne usporedne snimke s uređaja.
+
+### 🎮 Zaslon 08 — Igre i izazovi
+
+- **Pronađi slovo:** prikaz velikog tiskanog slova i četiri odabira. Točan odgovor otključava sljedeći izazov. Pogrešan odgovor prikazuje jasnu povratnu informaciju i dopušta novi pokušaj.
+- **Veliko i malo:** odaberi malo slovo koje odgovara prikazanom velikom slovu; hrvatski digrafi `DŽ/dž`, `LJ/lj`, `NJ/nj` imaju vlastite izazove.
+- **Vježbaj pisanje:** otvara već implementirano vođeno pisanje, uz stvarne poteze i upute.
+- **Bodovi:** prvi točno riješeni izazov za kombinaciju vrste igre i slova daje 10 bodova; ponovno igranje nije način za neograničeno skupljanje bodova. Najviše je moguće ostvariti 600 bodova kroz 60 različitih zadataka.
+- Dovršeni izazovi i bodovi čuvaju se isključivo lokalno te ih postavka **Izbriši lokalni napredak** uklanja zajedno s učenjem. Nema rang-lista, oglasa, korisničkih računa ili internetskih zahtjeva.
+- Responzivan portretni izgled i dvostupčani izgled na širokim zaslonima; donja navigacija vodi na početnu, igre, napredak i postavke.
+- Ponuđeni odgovori i točan rezultat proizlaze iz čiste Kotlin logike koja ima automatizirane testove svih 30 slova.
+
+**Status 1:1:** kartice, boje i raspored slijede dostupni SLOVIGO brending, ali nisu provedena precizna mjerenja podudarnosti s priloženim referentnim slikama.

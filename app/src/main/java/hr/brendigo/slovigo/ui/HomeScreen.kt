@@ -42,6 +42,7 @@ fun SlovigoHomeScreen(
     onUpper: () -> Unit,
     onLower: () -> Unit,
     onProgress: () -> Unit,
+    onGames: () -> Unit,
     onSettings: () -> Unit
 ) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -93,6 +94,7 @@ fun SlovigoHomeScreen(
                     selected = "home",
                     onHome = {},
                     onProgress = onProgress,
+                    onGames = onGames,
                     onSettings = onSettings
                 )
             }
@@ -343,6 +345,7 @@ private fun HomeNavigation(
     selected: String,
     onHome: ()->Unit,
     onProgress: ()->Unit,
+    onGames: ()->Unit,
     onSettings: ()->Unit
 ) {
     Row(
@@ -357,6 +360,7 @@ private fun HomeNavigation(
     ) {
         listOf(
             Triple("home","Početna",onHome),
+            Triple("games","Igre",onGames),
             Triple("progress","Napredak",onProgress),
             Triple("settings","Postavke",onSettings)
         ).forEach { (key,label,click) ->
@@ -389,6 +393,13 @@ private fun HomeNavIcon(key:String,color:Color,modifier:Modifier=Modifier) {
                 drawPath(roof,color,style=Stroke(line,cap=StrokeCap.Round))
                 drawRoundRect(color,Offset(w*.19f,h*.43f),Size(w*.62f,h*.49f),CornerRadius(w*.055f))
                 drawRoundRect(if(color==Color.White)Teal else Color.White,Offset(w*.43f,h*.66f),Size(w*.16f,h*.26f),CornerRadius(w*.03f))
+            }
+            "games" -> {
+                drawRoundRect(color,Offset(w*.08f,h*.28f),Size(w*.84f,h*.54f),CornerRadius(w*.25f))
+                drawLine(Color.White,Offset(w*.28f,h*.39f),Offset(w*.28f,h*.69f),line)
+                drawLine(Color.White,Offset(w*.17f,h*.54f),Offset(w*.39f,h*.54f),line)
+                drawCircle(Color.White,w*.06f,Offset(w*.69f,h*.45f))
+                drawCircle(Color.White,w*.06f,Offset(w*.79f,h*.62f))
             }
             "progress" -> {
                 listOf(.37f,.61f,.88f).forEachIndexed { i,v ->
