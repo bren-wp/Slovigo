@@ -64,7 +64,7 @@ fun SlovigoSettingsScreen(
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val wide = maxWidth >= 720.dp
         val compact = maxWidth < 360.dp
-        SettingsBackdrop()
+        SettingsBackdrop(highContrast = contrast)
         Column(Modifier.fillMaxSize()) {
             Column(
                 Modifier.weight(1f).fillMaxWidth()
@@ -517,12 +517,13 @@ private fun SettingsBottomNavigation(onHome: () -> Unit, onGames: () -> Unit) {
 }
 
 @Composable
-private fun SettingsBackdrop() {
+private fun SettingsBackdrop(highContrast: Boolean) {
     Canvas(
         Modifier.fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    listOf(
+                    if (highContrast) listOf(Color.White, Color.White, Ivory)
+                    else listOf(
                         Color(0xFF93DCF8),
                         Color(0xFFD5F4FD),
                         Color(0xFFFFFCED),
@@ -531,6 +532,7 @@ private fun SettingsBackdrop() {
                 )
             )
     ) {
+        if (highContrast) return@Canvas
         val w = size.width
         val h = size.height
         val white = Color.White.copy(alpha = .67f)

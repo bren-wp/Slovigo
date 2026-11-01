@@ -189,6 +189,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 showStrokeNumbers = numbers,
                                 boardSize = boardSize,
                                 strokeTolerance = PracticePreferences.strokeTolerance(tolerance),
+                                highContrast = contrast,
                                 onBack = { page = "letters" },
                                 onHome = returnHome,
                                 onUppercase = { upper = true; page = "letters" },

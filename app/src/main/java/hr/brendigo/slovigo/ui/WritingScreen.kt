@@ -54,6 +54,7 @@ fun SlovigoWritingScreen(
     showStrokeNumbers: Boolean,
     boardSize: Int,
     strokeTolerance: Float,
+    highContrast: Boolean,
     onBack: () -> Unit,
     onHome: () -> Unit,
     onUppercase: () -> Unit,
@@ -80,7 +81,7 @@ fun SlovigoWritingScreen(
         val wide = maxWidth >= 790.dp && maxWidth > maxHeight
         val compact = maxHeight < 670.dp || maxWidth < 350.dp
         val narrowLandscape = maxWidth < 930.dp
-        TraceScene()
+        TraceScene(highContrast = highContrast)
 
         if (wide) {
             Row(
@@ -478,14 +479,16 @@ private fun TraceNavigationRail(
 }
 
 @Composable
-private fun TraceScene() {
+private fun TraceScene(highContrast: Boolean) {
     Canvas(
         Modifier.fillMaxSize().background(
             Brush.verticalGradient(
-                listOf(Color(0xFF73CFF3), Color(0xFFC9F3FF), Ivory, Color(0xFFB8E88A))
+                if (highContrast) listOf(Color.White, Color.White, Ivory)
+                else listOf(Color(0xFF73CFF3), Color(0xFFC9F3FF), Ivory, Color(0xFFB8E88A))
             )
         )
     ) {
+        if (highContrast) return@Canvas
         val w = size.width
         val h = size.height
         val cloud = Color.White.copy(alpha = .68f)
