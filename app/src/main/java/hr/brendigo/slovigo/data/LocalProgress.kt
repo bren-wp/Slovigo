@@ -2,6 +2,7 @@ package hr.brendigo.slovigo.data
 
 import android.content.Context
 import hr.brendigo.slovigo.model.Alphabet
+import hr.brendigo.slovigo.model.PracticePreferences
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -81,6 +82,15 @@ class LocalProgress(context: Context) {
             .apply()
         return true
     }
+
+    fun hintsEnabled(): Boolean = prefs.getBoolean("hints", false)
+    fun setHintsEnabled(value: Boolean) = prefs.edit().putBoolean("hints", value).apply()
+    fun strokeNumbersEnabled(): Boolean = prefs.getBoolean("numbers", true)
+    fun setStrokeNumbersEnabled(value: Boolean) = prefs.edit().putBoolean("numbers", value).apply()
+    fun boardSize(): Int = PracticePreferences.clamp(prefs.getInt("board_size", PracticePreferences.BOARD_DEFAULT))
+    fun setBoardSize(value: Int) = prefs.edit().putInt("board_size", PracticePreferences.clamp(value)).apply()
+    fun touchTolerance(): Int = PracticePreferences.clamp(prefs.getInt("touch_tolerance", PracticePreferences.TOLERANCE_DEFAULT))
+    fun setTouchTolerance(value: Int) = prefs.edit().putInt("touch_tolerance", PracticePreferences.clamp(value)).apply()
 
     fun soundEnabled(): Boolean = prefs.getBoolean("sound", true)
     fun setSoundEnabled(value: Boolean) = prefs.edit().putBoolean("sound", value).apply()

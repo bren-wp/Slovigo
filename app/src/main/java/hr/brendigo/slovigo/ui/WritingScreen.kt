@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hr.brendigo.slovigo.model.Alphabet
+import hr.brendigo.slovigo.model.PracticePreferences
 
 /**
  * Screen 05 — learning how to write a letter.
@@ -49,6 +50,10 @@ fun SlovigoWritingScreen(
     letter: String,
     uppercase: Boolean,
     initialGuide: Boolean,
+    initialHelp: Boolean,
+    showStrokeNumbers: Boolean,
+    boardSize: Int,
+    strokeTolerance: Float,
     onBack: () -> Unit,
     onHome: () -> Unit,
     onUppercase: () -> Unit,
@@ -62,7 +67,7 @@ fun SlovigoWritingScreen(
     val letterPosition = remember(letter) { Alphabet.letters.indexOf(letter).coerceAtLeast(0) + 1 }
     var reset by remember(letter, uppercase) { mutableIntStateOf(0) }
     var completed by remember(letter, uppercase) { mutableStateOf(false) }
-    var help by remember(letter, uppercase) { mutableStateOf(false) }
+    var help by remember(letter, uppercase, initialHelp) { mutableStateOf(initialHelp) }
     var doneStrokes by remember(letter, uppercase) { mutableIntStateOf(0) }
 
     fun restart() {
@@ -100,7 +105,7 @@ fun SlovigoWritingScreen(
                         showBrand = false
                     )
                     TraceCard(
-                        label, uppercase, initialGuide, help, reset,
+                        label, uppercase, initialGuide, help, reset, showStrokeNumbers, boardSize, strokeTolerance,
                         onCompleted = { completed = true },
                         onProgress = { done, _ -> doneStrokes = done }
                     )
@@ -167,7 +172,7 @@ fun SlovigoWritingScreen(
                     showBrand = true
                 )
                 TraceCard(
-                    label, uppercase, initialGuide, help, reset,
+                    label, uppercase, initialGuide, help, reset, showStrokeNumbers, boardSize, strokeTolerance,
                     onCompleted = { completed = true },
                     onProgress = { done, _ -> doneStrokes = done }
                 )
@@ -294,11 +299,14 @@ private fun TraceCard(
     guide: Boolean,
     help: Boolean,
     resetToken: Int,
+    showNumbers: Boolean,
+    boardSize: Int,
+    tolerance: Float,
     onCompleted: () -> Unit,
     onProgress: (Int, Int) -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(PracticePreferences.boardFraction(boardSize)),
         shape = RoundedCornerShape(30.dp),
         color = Color.White,
         shadowElevation = 5.dp
@@ -314,6 +322,8 @@ private fun TraceCard(
                 onCompleted = onCompleted,
                 resetToken = resetToken,
                 showHelp = help,
+                showNumbers = showNumbers,
+                tolerance = tolerance,
                 onProgress = onProgress,
                 modifier = Modifier.fillMaxWidth()
             )

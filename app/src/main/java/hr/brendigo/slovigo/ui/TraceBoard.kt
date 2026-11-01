@@ -50,6 +50,8 @@ fun TraceBoard(
     modifier: Modifier = Modifier,
     resetToken: Int = 0,
     showHelp: Boolean = false,
+    showNumbers: Boolean = true,
+    tolerance: Float = 0.13f,
     onProgress: (Int, Int) -> Unit = { _, _ -> }
 ) {
     val strokes = remember(letter, uppercase) { Alphabet.strokes(letter, uppercase) }
@@ -69,8 +71,8 @@ fun TraceBoard(
         Text("Putanja nije dostupna. Vrati se na izbor slova.", color = Navy)
         return
     }
-    val validator = remember(letter, uppercase, resetToken, strokeIndex) {
-        StrokeTracker(current)
+    val validator = remember(letter, uppercase, resetToken, strokeIndex, tolerance) {
+        StrokeTracker(current, tolerance.coerceIn(0.07f, 0.2f))
     }
     val completeNow by rememberUpdatedState(onCompleted)
     val reportProgress by rememberUpdatedState(onProgress)
@@ -235,7 +237,7 @@ fun TraceBoard(
                     )
                 }
             }
-            if (showGuide || showHelp) {
+            if ((showGuide || showHelp) && showNumbers) {
                 val boardWidth = maxWidth
                 val boardHeight = maxHeight
                 strokes.forEachIndexed { index, stroke ->
