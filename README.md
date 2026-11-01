@@ -29,7 +29,7 @@
 
 ## 📱 Stvarni prikazi i kvaliteta
 
-Splash (01), Početna (02), Velika tiskana slova (03), Mala tiskana slova (04), Vježbanje pisanja (05), Pohvala (06) i Moj napredak (07) i Igre (08) imaju zasebne responzivne Compose implementacije za mobitele i tablete. **Podudarnost 1:1 još nije izmjerena ni potvrđena usporedbom sa stvarnim prikazom.**
+Splash (01), Početna (02), Velika tiskana slova (03), Mala tiskana slova (04), Vježbanje pisanja (05), Pohvala (06), Moj napredak (07), Igre (08) i Postavke (09) imaju zasebne responzivne Compose implementacije za mobitele i tablete. **Podudarnost 1:1 još nije izmjerena ni potvrđena usporedbom sa stvarnim prikazom.**
 
 Prethodne PNG snimke emulatora bile su **nevaljane** jer su prikazivale Androidov ANR (`Process system isn't responding`) umjesto SLOVIGO aplikacije. Iz marketinške prezentacije uklonjene su njihove poveznice. Valjane snimke mogu se objaviti tek kada prođu stvarnu UI provjeru; stari PNG-ovi u repozitoriju nisu dokaz uspješnog prikaza.
 
@@ -60,7 +60,7 @@ Ilustracije osnovnog zaslona implementirane su kao **Compose vektorski crteži**
 | 06 | Uspješno završena vježba | ✅ Samostalan responzivni Compose ekran „Bravo!”, vektorska zvijezda, vrpca, maskota, bodovi i navigacija; 1:1 usporedba još nije provedena |
 | 07 | Napredak | ✅ Responzivni pregled, 60 mjesta za slova, stvarni dnevni zapis, značke, navigacija; 1:1 vizualna potvrda još nije provedena |
 | 08 | Igre | ✅ Responzivan zaslon s dvije stvarne igre prepoznavanja slova, bodovima i pristupom vježbanju pisanja; vizualno 1:1 nije potvrđeno |
-| 09 | Postavke | Osnovne funkcije, vizualna dorada slijedi |
+| 09 | Postavke | ✅ Zaseban responzivni Compose zaslon, sedam funkcionalnih kontrola i povratak na prethodni zaslon; točnost 1:1 tek treba izmjeriti |
 
 ## 🛠️ Tehnologija i uređaji
 
@@ -150,3 +150,17 @@ Vizualno su implementirane komponente iz dostavljene reference (brendirano zagla
 - Ponuđeni odgovori i točan rezultat proizlaze iz čiste Kotlin logike koja ima automatizirane testove svih 30 slova.
 
 **Status 1:1:** kartice, boje i raspored slijede dostupni SLOVIGO brending, ali nisu provedena precizna mjerenja podudarnosti s priloženim referentnim slikama.
+
+### ⚙️ Zaslon 09 — Postavke
+
+- Vizualno zaseban Compose zaslon sa SLOVIGO logotipom, maskotom olovke, karticama za učenje/prilagodbu/roditelje i responzivnim prikazom (na širokim prozorima dva stupca).
+- **Strelice i vodilice:** stvarno uključuju ili isključuju prikaz putanja i smjerova tijekom pisanja.
+- **Izgovor slova:** stvarno uključuje/isključuje izgovor preko dostupnog Android TTS sustava; gumb „Isprobaj izgovor” radi samo kada je uključen zvuk. Ako na uređaju nije dostupna hrvatska TTS podrška, izgovor neće biti moguć.
+- **Dodatne upute:** postavlja početni prikaz pomoći na zaslonu vježbanja; **Brojevi poteza** skrivaju ili prikazuju oznake poteza bez isključivanja početne točke.
+- **Veličina ploče:** bira 82%, 92% ili 100% dostupne širine. **Osjetljivost dodira:** odabire stvarnu toleranciju praćenja putanja 0,09/0,13/0,18 u normaliziranim koordinatama.
+- **Visoki kontrast:** koristi postojeći visoko-kontrastni način opće pozadine aplikacije.
+- **O aplikaciji i privatnosti** otvara postojeće lokalne informacije. **Izbriši napredak** otvara dijalog potvrde i uklanja lokalna slova, bodove, minute vježbanja i postavke. Osobni podaci ne šalju se na poslužitelj.
+- Gumb „Natrag” i Android Back vraćaju na prethodnu stranicu iz koje su Postavke otvorene; roditeljski odjeljak ne glumi lozinkom zaštićen izbornik.
+- Sve kontrole se spremaju u privatni SharedPreferences i nakon ponovnog otvaranja aplikacije; vrijednosti klizača se provjeravaju prije korištenja. Dodani su zasebni JUnit testovi osnovnih granica.
+
+**Vizualna provjera:** raspored i brending izrađeni su prema dostupnom konceptu, ali stvarni pixel-perfect 1:1 rezultat još treba usporediti s referentnom slikom na uređaju. Ne prikazuju se nevaljane emulator snimke kao marketinške slike.
