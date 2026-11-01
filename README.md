@@ -29,7 +29,7 @@
 
 ## 📱 Stvarni prikazi i kvaliteta
 
-Splash (01), Početna (02), Velika tiskana slova (03), Mala tiskana slova (04) Vježbanje pisanja (05) i Pohvala (06) imaju zasebne responzivne Compose implementacije za mobitele i tablete. **Podudarnost 1:1 još nije izmjerena ni potvrđena usporedbom sa stvarnim prikazom.**
+Splash (01), Početna (02), Velika tiskana slova (03), Mala tiskana slova (04), Vježbanje pisanja (05), Pohvala (06) i Moj napredak (07) imaju zasebne responzivne Compose implementacije za mobitele i tablete. **Podudarnost 1:1 još nije izmjerena ni potvrđena usporedbom sa stvarnim prikazom.**
 
 Prethodne PNG snimke emulatora bile su **nevaljane** jer su prikazivale Androidov ANR (`Process system isn't responding`) umjesto SLOVIGO aplikacije. Iz marketinške prezentacije uklonjene su njihove poveznice. Valjane snimke mogu se objaviti tek kada prođu stvarnu UI provjeru; stari PNG-ovi u repozitoriju nisu dokaz uspješnog prikaza.
 
@@ -58,7 +58,7 @@ Ilustracije osnovnog zaslona implementirane su kao **Compose vektorski crteži**
 | 04 | Mala tiskana slova | ✅ Poseban responzivni Compose zaslon, uključuje digrafe i odvojeni lokalni napredak; vizualna usporedba još nije završena |
 | 05 | Vođeno pisanje | ✅ Zaseban responzivni portretni/vodoravni zaslon, označeni potezi, funkcionalni gumbi; pedagoška i vizualna provjera slijedi |
 | 06 | Uspješno završena vježba | ✅ Samostalan responzivni Compose ekran „Bravo!”, vektorska zvijezda, vrpca, maskota, bodovi i navigacija; 1:1 usporedba još nije provedena |
-| 07 | Napredak | Funkcionalan, vizualna dorada slijedi |
+| 07 | Napredak | ✅ Responzivni pregled, 60 mjesta za slova, stvarni dnevni zapis, značke, navigacija; 1:1 vizualna potvrda još nije provedena |
 | 08 | Igre | Osnovna igra, za proširenje |
 | 09 | Postavke | Osnovne funkcije, vizualna dorada slijedi |
 
@@ -126,3 +126,15 @@ Podudarnost 1:1 s referentnim ilustracijama **nije potvrđena** jer nema valjane
 - Testovi provjeravaju hrvatski abecedni slijed i gornju/donju granicu prikaza napretka.
 
 **1:1 status:** vizualni elementi slijede dostavljenu referentnu sliku, ali podudaranje piksel po piksel još nije potvrđeno stvarnom snimkom iz aplikacije.
+
+### 📊 Zaslon 07 — Moj napredak
+
+- Kružni pokazatelj prikazuje **stvarno naučena velika + mala slova od ukupno 60** (30 slova hrvatske abecede po veličini). Referentnih 12/30 nije točan ukupni nazivnik ako se prate oba oblika; aplikacija prikazuje 12/60.
+- Odvojene kartice velikih i malih slova prikazuju svaki napredak od 30, bez zadanih demonstracijskih vrijednosti.
+- Sljedeći cilj nudi do tri još nenaučena slova stvarnim abecednim redoslijedom.
+- Tjedna aktivnost koristi lokalne sekunde **uspješno dovršenih** vježbi, s datumom uređaja; novim korisnicima prikazuje poruku da nema podataka. Vrijeme se ograničava na 30 minuta po dovršenoj vježbi i nije ukupno vrijeme provedeno u aplikaciji. Prije ovoga izdanja vrijeme vježbanja nije bilježeno.
+- Značke se dodjeljuju tek nakon stvarnog napretka (5, 10, 60 slova i 7 uzastopnih dana). Značka „Uredan rukopis” ostaje zaključana jer metrika za ocjenjivanje rukopisa još nije implementirana.
+- „Prikaži sve” otvara popis i uvjete svih znački; „Nastavi vježbati” otvara izbor slova. Donja navigacija omogućuje Početnu, Slova, Napredak i Postavke.
+- Podaci ostaju u lokalnom Android SharedPreferences spremištu i brišu se u postavkama. Nema vanjske analitike.
+
+Vizualno su implementirane komponente iz dostavljene reference (brendirano zaglavlje, maskota, kartice, kružni graf, stupčasti graf, medalje i donja navigacija). **Pixel-perfect 1:1 nije objektivno potvrđen** — za to su potrebne stvarne usporedne snimke s uređaja.
