@@ -68,6 +68,20 @@ class LocalProgress(context: Context) {
         return streak
     }
 
+    /** Unique completed mini-game challenges; replay cannot farm points. */
+    fun gamePoints(): Int = prefs.getInt("game_points", 0).coerceIn(0, 600)
+
+    fun awardGameOnce(mode: String, letter: String): Boolean {
+        if (mode !in setOf("find", "lowercase") || letter !in Alphabet.letters) return false
+        val key = "game_" + mode + "_" + letter
+        if (prefs.getBoolean(key, false)) return false
+        prefs.edit()
+            .putBoolean(key, true)
+            .putInt("game_points", (gamePoints() + 10).coerceAtMost(600))
+            .apply()
+        return true
+    }
+
     fun soundEnabled(): Boolean = prefs.getBoolean("sound", true)
     fun setSoundEnabled(value: Boolean) = prefs.edit().putBoolean("sound", value).apply()
     fun guideEnabled(): Boolean = prefs.getBoolean("guide", true)
