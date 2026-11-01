@@ -252,7 +252,7 @@ private fun ProgressOverview(total: Int, next: List<String>, modifier: Modifier)
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            BoxWithConstraints(Modifier.weight(.44f).aspectRatio(1f), contentAlignment = Alignment.Center) {
+            Box(Modifier.weight(.44f).aspectRatio(1f), contentAlignment = Alignment.Center) {
                 Canvas(Modifier.fillMaxSize()) {
                     val line = 19.dp.toPx().coerceAtMost(size.minDimension * .15f)
                     val padding = line / 2f + 5.dp.toPx()
