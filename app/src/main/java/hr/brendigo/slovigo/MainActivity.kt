@@ -1,6 +1,7 @@
 package hr.brendigo.slovigo
 
 import android.os.Bundle
+import android.os.SystemClock
 import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val preview = if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters", "lowercase", "trace", "success") } ?: "welcome"
+            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters", "lowercase", "trace", "success", "progress") } ?: "welcome"
         } else "welcome"
         setContent { SlovigoTheme { SlovigoApp(initialPage = preview) { text ->
             speakSafely(text)
@@ -96,9 +97,14 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
     var guide by remember { mutableStateOf(storage.guideEnabled()) }
     var contrast by remember { mutableStateOf(storage.contrastEnabled()) }
     var showReset by remember { mutableStateOf(false) }
+    var practiceStartedAt by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
     val upperCount = remember(revision) { storage.total(true) }
     val lowerCount = remember(revision) { storage.total(false) }
-    val choose: (String) -> Unit = { letter = it; page = "trace" }
+    val choose: (String) -> Unit = {
+        letter = it
+        practiceStartedAt = SystemClock.elapsedRealtime()
+        page = "trace"
+    }
     val returnHome: () -> Unit = { page = "home" }
     val back: () -> Unit = {
         page = when(page) {
@@ -117,7 +123,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
             val tablet = maxWidth >= 700.dp && maxHeight >= 480.dp
             val contentWidth = if (tablet) 1040.dp else 620.dp
             Column(Modifier.fillMaxSize()) {
-                if (page !in setOf("welcome", "home", "letters", "trace", "success")) {
+                if (page !in setOf("welcome", "home", "letters", "trace", "success", "progress")) {
                     Row(
                         Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -174,6 +180,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 onListen = { if (sound) speak(Alphabet.label(letter, upper)) },
                                 onFinished = {
                                     storage.markCompleted(letter, upper)
+                                    storage.recordCompletedExercise(SystemClock.elapsedRealtime() - practiceStartedAt)
                                     revision++
                                     page = "success"
                                 }
@@ -184,18 +191,34 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 completedCount = if (upper) upperCount else lowerCount,
                                 onBack = back,
                                 onSettings = { page = "settings" },
-                                onRepeat = { page = "trace" },
+                                onRepeat = {
+                                    practiceStartedAt = SystemClock.elapsedRealtime()
+                                    page = "trace"
+                                },
                                 onNext = {
                                     val next = AchievementFlow.nextLetter(letter)
                                     if (next == null) {
                                         page = "letters"
                                     } else {
                                         letter = next
+                                        practiceStartedAt = SystemClock.elapsedRealtime()
                                         page = "trace"
                                     }
                                 }
                             )
-                            "progress" -> ProgressScreen(upperCount, lowerCount) { page = "letters" }
+                            "progress" -> SlovigoProgressScreen(
+                                upperCompleted = remember(revision) { storage.completedLetters(true) },
+                                lowerCompleted = remember(revision) { storage.completedLetters(false) },
+                                weeklyActivity = remember(revision) { storage.weeklyActivity() },
+                                streakDays = remember(revision) { storage.practiceStreak() },
+                                onPractice = {
+                                    upper = true
+                                    page = "letters"
+                                },
+                                onHome = returnHome,
+                                onLetters = { page = "letters" },
+                                onSettings = { page = "settings" }
+                            )
                             "games" -> GameScreen { choose(it) }
                             "settings" -> SettingsScreen(
                                 sound, guide, contrast,
@@ -209,7 +232,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                         }
                     }
                 }
-                if (page !in setOf("welcome", "trace", "success", "home", "letters")) {
+                if (page !in setOf("welcome", "trace", "success", "home", "letters", "progress")) {
                     BottomMenu(page) { page = it }
                 }
             }
@@ -231,31 +254,6 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
         },
         dismissButton = { TextButton(onClick = { showReset = false }) { Text("Odustani") } }
     )
-}
-
-@Composable
-private fun ProgressScreen(upperCount: Int, lowerCount: Int, onPractice: () -> Unit) {
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
-    ) {
-        ScreenTitle("Moj napredak", "Prati koliko si slova naučio/la")
-        WhiteCard(Modifier.fillMaxWidth()) {
-            Text("🏆  Uspješno naučeno", style = MaterialTheme.typography.titleLarge)
-            Text("${upperCount + lowerCount} / 60", fontSize = 56.sp, fontWeight = FontWeight.ExtraBold, color = Teal)
-            ProgressBadge(upperCount + lowerCount, 60)
-        }
-        WhiteCard(Modifier.fillMaxWidth()) {
-            Text("Velika tiskana slova", style = MaterialTheme.typography.titleLarge)
-            ProgressBadge(upperCount, 30)
-        }
-        WhiteCard(Modifier.fillMaxWidth()) {
-            Text("Mala tiskana slova", style = MaterialTheme.typography.titleLarge)
-            ProgressBadge(lowerCount, 30)
-        }
-        Text("⭐  Svako slovo možeš vježbati više puta!", color = Navy)
-        BigAction("▶  Nastavi vježbati", onPractice, Modifier.fillMaxWidth(), background = Yellow)
-    }
 }
 
 @Composable
