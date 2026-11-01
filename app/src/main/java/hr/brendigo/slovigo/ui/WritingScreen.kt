@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import hr.brendigo.slovigo.model.Alphabet
+import hr.brendigo.slovigo.model.PracticePreferences
 
 /**
  * Screen 05 — learning how to write a letter.
@@ -49,6 +50,11 @@ fun SlovigoWritingScreen(
     letter: String,
     uppercase: Boolean,
     initialGuide: Boolean,
+    initialHelp: Boolean,
+    showStrokeNumbers: Boolean,
+    boardSize: Int,
+    strokeTolerance: Float,
+    highContrast: Boolean,
     onBack: () -> Unit,
     onHome: () -> Unit,
     onUppercase: () -> Unit,
@@ -62,7 +68,7 @@ fun SlovigoWritingScreen(
     val letterPosition = remember(letter) { Alphabet.letters.indexOf(letter).coerceAtLeast(0) + 1 }
     var reset by remember(letter, uppercase) { mutableIntStateOf(0) }
     var completed by remember(letter, uppercase) { mutableStateOf(false) }
-    var help by remember(letter, uppercase) { mutableStateOf(false) }
+    var help by remember(letter, uppercase, initialHelp) { mutableStateOf(initialHelp) }
     var doneStrokes by remember(letter, uppercase) { mutableIntStateOf(0) }
 
     fun restart() {
@@ -75,7 +81,7 @@ fun SlovigoWritingScreen(
         val wide = maxWidth >= 790.dp && maxWidth > maxHeight
         val compact = maxHeight < 670.dp || maxWidth < 350.dp
         val narrowLandscape = maxWidth < 930.dp
-        TraceScene()
+        TraceScene(highContrast = highContrast)
 
         if (wide) {
             Row(
@@ -100,7 +106,7 @@ fun SlovigoWritingScreen(
                         showBrand = false
                     )
                     TraceCard(
-                        label, uppercase, initialGuide, help, reset,
+                        label, uppercase, initialGuide, help, reset, showStrokeNumbers, boardSize, strokeTolerance,
                         onCompleted = { completed = true },
                         onProgress = { done, _ -> doneStrokes = done }
                     )
@@ -167,7 +173,7 @@ fun SlovigoWritingScreen(
                     showBrand = true
                 )
                 TraceCard(
-                    label, uppercase, initialGuide, help, reset,
+                    label, uppercase, initialGuide, help, reset, showStrokeNumbers, boardSize, strokeTolerance,
                     onCompleted = { completed = true },
                     onProgress = { done, _ -> doneStrokes = done }
                 )
@@ -294,11 +300,14 @@ private fun TraceCard(
     guide: Boolean,
     help: Boolean,
     resetToken: Int,
+    showNumbers: Boolean,
+    boardSize: Int,
+    tolerance: Float,
     onCompleted: () -> Unit,
     onProgress: (Int, Int) -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(PracticePreferences.boardFraction(boardSize)),
         shape = RoundedCornerShape(30.dp),
         color = Color.White,
         shadowElevation = 5.dp
@@ -314,6 +323,8 @@ private fun TraceCard(
                 onCompleted = onCompleted,
                 resetToken = resetToken,
                 showHelp = help,
+                showNumbers = showNumbers,
+                tolerance = tolerance,
                 onProgress = onProgress,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -468,14 +479,16 @@ private fun TraceNavigationRail(
 }
 
 @Composable
-private fun TraceScene() {
+private fun TraceScene(highContrast: Boolean) {
     Canvas(
         Modifier.fillMaxSize().background(
             Brush.verticalGradient(
-                listOf(Color(0xFF73CFF3), Color(0xFFC9F3FF), Ivory, Color(0xFFB8E88A))
+                if (highContrast) listOf(Color.White, Color.White, Ivory)
+                else listOf(Color(0xFF73CFF3), Color(0xFFC9F3FF), Ivory, Color(0xFFB8E88A))
             )
         )
     ) {
+        if (highContrast) return@Canvas
         val w = size.width
         val h = size.height
         val cloud = Color.White.copy(alpha = .68f)

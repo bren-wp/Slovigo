@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import hr.brendigo.slovigo.data.LocalProgress
 import hr.brendigo.slovigo.model.Alphabet
 import hr.brendigo.slovigo.model.AchievementFlow
+import hr.brendigo.slovigo.model.PracticePreferences
 import hr.brendigo.slovigo.ui.*
 import java.util.Locale
 
@@ -33,7 +34,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val preview = if ((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters", "lowercase", "trace", "success", "progress", "games") } ?: "welcome"
+            intent.getStringExtra("preview_screen")?.takeIf { it in setOf("home", "welcome", "letters", "lowercase", "trace", "success", "progress", "games", "settings") } ?: "welcome"
         } else "welcome"
         setContent { SlovigoTheme { SlovigoApp(initialPage = preview) { text ->
             speakSafely(text)
@@ -96,6 +97,15 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
     var sound by remember { mutableStateOf(storage.soundEnabled()) }
     var guide by remember { mutableStateOf(storage.guideEnabled()) }
     var contrast by remember { mutableStateOf(storage.contrastEnabled()) }
+    var hints by remember { mutableStateOf(storage.hintsEnabled()) }
+    var numbers by remember { mutableStateOf(storage.strokeNumbersEnabled()) }
+    var boardSize by remember { mutableIntStateOf(storage.boardSize()) }
+    var tolerance by remember { mutableIntStateOf(storage.touchTolerance()) }
+    var settingsOrigin by rememberSaveable { mutableStateOf("home") }
+    val openSettings: () -> Unit = {
+        settingsOrigin = page
+        page = "settings"
+    }
     var showReset by remember { mutableStateOf(false) }
     var practiceStartedAt by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
     val upperCount = remember(revision) { storage.total(true) }
@@ -110,7 +120,9 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
         page = when(page) {
             "trace" -> "letters"
             "success" -> "letters"
-            "letters", "progress", "settings", "games", "about" -> "home"
+            "settings" -> if (settingsOrigin == "settings") "home" else settingsOrigin
+            "about" -> "settings"
+            "letters", "progress", "games" -> "home"
             else -> "home"
         }
     }
@@ -123,7 +135,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
             val tablet = maxWidth >= 700.dp && maxHeight >= 480.dp
             val contentWidth = if (tablet) 1040.dp else 620.dp
             Column(Modifier.fillMaxSize()) {
-                if (page !in setOf("welcome", "home", "letters", "trace", "success", "progress", "games")) {
+                if (page !in setOf("welcome", "home", "letters", "trace", "success", "progress", "games", "settings")) {
                     Row(
                         Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -145,7 +157,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 onLower = { upper = false; page = "letters" },
                                 onProgress = { page = "progress" },
                                 onGames = { page = "games" },
-                                onSettings = { page = "settings" }
+                                onSettings = openSettings
                             )
                             "letters" -> if (upper) {
                                 SlovigoAlphabetScreen(
@@ -156,7 +168,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                     onSound = { if (sound) speak("Odaberi veliko slovo za vježbanje") },
                                     onHome = returnHome,
                                     onGames = { page = "games" },
-                                    onSettings = { page = "settings" }
+                                    onSettings = openSettings
                                 )
                             } else {
                                 SlovigoLowercaseScreen(
@@ -166,18 +178,23 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                     onListen = { if (sound) speak("Odaberi malo tiskano slovo za vježbanje") },
                                     onHome = returnHome,
                                     onGames = { page = "games" },
-                                    onSettings = { page = "settings" }
+                                    onSettings = openSettings
                                 )
                             }
                             "trace" -> SlovigoWritingScreen(
                                 letter = letter,
                                 uppercase = upper,
                                 initialGuide = guide,
+                                initialHelp = hints,
+                                showStrokeNumbers = numbers,
+                                boardSize = boardSize,
+                                strokeTolerance = PracticePreferences.strokeTolerance(tolerance),
+                                highContrast = contrast,
                                 onBack = { page = "letters" },
                                 onHome = returnHome,
                                 onUppercase = { upper = true; page = "letters" },
                                 onLowercase = { upper = false; page = "letters" },
-                                onSettings = { page = "settings" },
+                                onSettings = openSettings,
                                 onListen = { if (sound) speak(Alphabet.label(letter, upper)) },
                                 onFinished = {
                                     storage.markCompleted(letter, upper)
@@ -191,7 +208,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 uppercase = upper,
                                 completedCount = if (upper) upperCount else lowerCount,
                                 onBack = back,
-                                onSettings = { page = "settings" },
+                                onSettings = openSettings,
                                 onRepeat = {
                                     practiceStartedAt = SystemClock.elapsedRealtime()
                                     page = "trace"
@@ -218,7 +235,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 },
                                 onHome = returnHome,
                                 onLetters = { page = "letters" },
-                                onSettings = { page = "settings" }
+                                onSettings = openSettings
                             )
                             "games" -> SlovigoGamesScreen(
                                 points = remember(revision) { storage.gamePoints() },
@@ -234,21 +251,35 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 onSpeak = { spoken -> if (sound) speak(spoken) },
                                 onHome = returnHome,
                                 onProgress = { page = "progress" },
-                                onSettings = { page = "settings" }
+                                onSettings = openSettings
                             )
-                            "settings" -> SettingsScreen(
-                                sound, guide, contrast,
+                            "settings" -> SlovigoSettingsScreen(
+                                sound = sound,
+                                guides = guide,
+                                hints = hints,
+                                numbers = numbers,
+                                contrast = contrast,
+                                boardSize = boardSize,
+                                tolerance = tolerance,
                                 onSound = { sound = it; storage.setSoundEnabled(it) },
-                                onGuide = { guide = it; storage.setGuideEnabled(it) },
+                                onGuides = { guide = it; storage.setGuideEnabled(it) },
+                                onHints = { hints = it; storage.setHintsEnabled(it) },
+                                onNumbers = { numbers = it; storage.setStrokeNumbersEnabled(it) },
                                 onContrast = { contrast = it; storage.setContrastEnabled(it) },
+                                onBoardSize = { boardSize = it; storage.setBoardSize(it) },
+                                onTolerance = { tolerance = it; storage.setTouchTolerance(it) },
+                                onTestSound = { if (sound) speak("SLOVIGO. Učimo pisati kroz igru.") },
+                                onBack = back,
+                                onAbout = { page = "about" },
                                 onReset = { showReset = true },
-                                onAbout = { page = "about" }
+                                onHome = returnHome,
+                                onGames = { page = "games" }
                             )
                             "about" -> AboutScreen()
                         }
                     }
                 }
-                if (page !in setOf("welcome", "trace", "success", "home", "letters", "progress", "games")) {
+                if (page !in setOf("welcome", "trace", "success", "home", "letters", "progress", "games", "settings")) {
                     BottomMenu(page) { page = it }
                 }
             }
@@ -265,52 +296,15 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                 sound = true
                 guide = true
                 contrast = false
+                hints = false
+                numbers = true
+                boardSize = PracticePreferences.BOARD_DEFAULT
+                tolerance = PracticePreferences.TOLERANCE_DEFAULT
                 showReset = false
             }) { Text("Izbriši", color = Coral) }
         },
         dismissButton = { TextButton(onClick = { showReset = false }) { Text("Odustani") } }
     )
-}
-
-@Composable
-private fun SettingsScreen(
-    sound: Boolean, guide: Boolean, contrast: Boolean,
-    onSound: (Boolean) -> Unit, onGuide: (Boolean) -> Unit, onContrast: (Boolean) -> Unit,
-    onReset: () -> Unit, onAbout: () -> Unit
-) {
-    Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),
-        verticalArrangement = Arrangement.spacedBy(15.dp)
-    ) {
-        ScreenTitle("Postavke", "Prilagodi način učenja")
-        WhiteCard(Modifier.fillMaxWidth()) {
-            Text("Učenje", style = MaterialTheme.typography.titleLarge, color = Teal)
-            SettingToggle("Prikaz vodilica", "Oznake smjera pisanja", guide, onGuide)
-            HorizontalDivider()
-            SettingToggle("Zvuk slova", "Izgovor putem Android TTS usluge", sound, onSound)
-        }
-        WhiteCard(Modifier.fillMaxWidth()) {
-            Text("Pristupačnost", style = MaterialTheme.typography.titleLarge, color = Teal)
-            SettingToggle("Visoki kontrast", "Dodatna prilagodba kontrasta", contrast, onContrast)
-            Text("Aplikacija koristi velike tipke i podržava promjenu veličine teksta u sustavu.", color=Navy.copy(alpha=.68f))
-        }
-        WhiteCard(Modifier.fillMaxWidth()) {
-            Text("Roditeljske mogućnosti", style=MaterialTheme.typography.titleLarge, color=Teal)
-            SmallAction("O aplikaciji i privatnosti", onAbout, Modifier.fillMaxWidth())
-            SmallAction("Izbriši lokalni napredak", onReset, Modifier.fillMaxWidth())
-        }
-    }
-}
-
-@Composable
-private fun SettingToggle(title: String, subtitle: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Text(title, fontWeight = FontWeight.Bold, color = Navy)
-            Text(subtitle, fontSize = 13.sp, color = Navy.copy(alpha = .7f))
-        }
-        Switch(checked = checked, onCheckedChange = onChange)
-    }
 }
 
 @Composable
