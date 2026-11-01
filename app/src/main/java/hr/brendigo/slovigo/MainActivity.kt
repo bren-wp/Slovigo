@@ -144,6 +144,7 @@ private fun SlovigoApp(initialPage: String, speak: (String) -> Unit) {
                                 onUpper = { upper = true; page = "letters" },
                                 onLower = { upper = false; page = "letters" },
                                 onProgress = { page = "progress" },
+                                onGames = { page = "games" },
                                 onSettings = { page = "settings" }
                             )
                             "letters" -> if (upper) {
